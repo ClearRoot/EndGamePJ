@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
+{% load gravatar_templatetag %}
 {% block base %}
 
     <h1>TEST LIST</h1>
+    {% if user.is_authenticated %}
+        <h3>{{user.email|gravatar:50}} {{user.username}}</h3>
+    {% endif %}
     
 {% endblock %}
