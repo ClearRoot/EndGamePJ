@@ -59,6 +59,9 @@ pip install django-bootstrap4
 pip install Pillow
 pip install pilkit
 pip install django-imagekit
+
+#oauth
+pip install django-allauth
 ```
 
 ```python
@@ -82,11 +85,20 @@ from imagekit.processors import ResizeToFill
 -COMMENT CRUD
 
 **조호근**
--account(자체 회원가입, Gravatar)
+-:heavy_check_mark:account(자체 회원가입, Gravatar)
 
 **정태준**
 -all-auth(Google, Naver, Facebook)
+
+​	- :heavy_check_mark:Google
+
+​	- :heavy_check_mark:Naver
+
+​	- Facebook
+
 -데이터 크롤링(영진사)
+
+​	- 일부완료(DB설계시 개시)
 
 **[추가사항]**
 @내 위치에서 가까운 영화관 추천
