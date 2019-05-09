@@ -13,7 +13,7 @@ class Movie(models.Model):
     title = models.CharField(max_length=150)
     content = models.TextField()
     open_date = models.CharField(max_length=10)
-    audience = models.IntegerField()
+    audience = models.IntegerField(null=True)
     image = models.TextField()
     grade = models.CharField(max_length=30)
     nations = models.CharField(max_length=30)

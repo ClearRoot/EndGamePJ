@@ -20,14 +20,14 @@ def list(request):
         '기타':21
     }
     
-    for d in range(1,129):
+    for d in range(1,130):#130-20190510
         date = datetime.datetime.now() - datetime.timedelta(days=d)
         date = date.strftime('%Y%m%d')
     
         URL = f'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={MOVIE_KEY}&targetDt={date}'
         res = requests.get(URL)
         if res.status_code == 200:
-            print("접근완료")
+
             res = res.json()
             daily_movies = res.get('boxOfficeResult').get('dailyBoxOfficeList')
             for num in range(10):
@@ -37,7 +37,6 @@ def list(request):
                 movie_name = daily_movies[num].get('movieNm')
                 open_date = daily_movies[num].get('openDt')
                 audience = int(daily_movies[num].get('audiAcc'))
-                
                 data = requests.get('https://openapi.naver.com/v1/search/movie.json?query='+movie_name,
                     headers = {
                         'X-Naver-Client-Id':NAVER_ID,
@@ -48,10 +47,14 @@ def list(request):
                 
                 movie_link = data.get('items')[0].get('link')
                 movie_link_url = requests.get(movie_link)
+                print(movie_link)
                 if movie_link_url.status_code == 200:
                     soup = BeautifulSoup(movie_link_url.text, features='html.parser')
                     movie_content = soup.select('#content > div.article > div.section_group.section_group_frst > div:nth-child(1) > div > div.story_area > p')
-                    movie_content = str(movie_content[0])
+                    if movie_content:
+                        movie_content = str(movie_content[0])
+                    else:
+                        movie_content = ''
                 
                 movie_img_code = movie_link.split('https://movie.naver.com/movie/bi/mi/basic.nhn?code=')
                 if movie_img_code[1]:    
@@ -75,24 +78,26 @@ def list(request):
                     showTm = int(movie_info.get('showTm'))
                     
                     """ Movie Table """
-                    movie = Movie.objects.get_or_create(title=movie_name, content=movie_content, open_date=open_date, audience=audience, image=image, grade=watchGradeNm, nations=nations, show_time=showTm)
-                    
+                    movie = Movie.objects.get_or_create(title=movie_name, content=movie_content, open_date=open_date, image=image, grade=watchGradeNm, nations=nations, show_time=showTm)
+                    movie[0].audience = audience
+                    movie[0].save()
                     for i in range(len(movie_info.get('genres'))):
                         idx_num = genre_list[movie_info.get('genres')[i].get('genreNm')]
                         genre = Genre.objects.get(pk=idx_num)
                         movie[0].genres.add(genre)
-    
-                    """ People Table """                
-                    for director in range(len(movie_info.get('directors'))):
-                        people = People.objects.get_or_create(director=movie_info.get('directors')[director].get('peopleNm'))
-                        people[0].movies.add(movie[0])
                     
-                    for actor in range(len(movie_info.get('actors'))):
-                        people = People.objects.get_or_create(actor=movie_info.get('actors')[actor].get('peopleNm'))
-                        people[0].movies.add(movie[0])
+                    if movie[1]:
+                        """ People Table """                
+                        for director in range(len(movie_info.get('directors'))):
+                            people = People.objects.get_or_create(director=movie_info.get('directors')[director].get('peopleNm'))
+                            people[0].movies.add(movie[0])
+                        
+                        for actor in range(len(movie_info.get('actors'))):
+                            people = People.objects.get_or_create(actor=movie_info.get('actors')[actor].get('peopleNm'))
+                            people[0].movies.add(movie[0])
                     
                     """ MovieRank Table """
-                    MovieRank.objects.create(movie=movie[0], date=date, rank=rank, rank_inten=rank_inten)
+                    MovieRank.objects.get_or_create(movie=movie[0], date=date, rank=rank, rank_inten=rank_inten)
                     
                     print(f'{date}, {num}번째 완료!!!!!')
             
