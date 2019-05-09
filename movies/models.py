@@ -9,23 +9,18 @@ class Genre(models.Model):
         return self.mtype
     
 class Movie(models.Model):
-    genres = models.ManyToManyField(Genre, related_name='movies')
+    genres = models.ManyToManyField(Genre, related_name='movies', blank=True)
     title = models.CharField(max_length=150)
     content = models.TextField()
-    open_date = models.CharField(max_length=8)
-    audience = models.IntegerField()
-    image = ProcessedImageField(
-            upload_to = 'movies/images',
-            processors = [ResizeToFill(400,600)],
-            format = 'JPEG',
-            options = {'quality':100},
-        )
+    open_date = models.CharField(max_length=10)
+    audience = models.IntegerField(null=True)
+    image = models.TextField()
     grade = models.CharField(max_length=30)
     nations = models.CharField(max_length=30)
-    show_time = models.CharField(max_length=3)
+    show_time = models.IntegerField()
     
 class People(models.Model):
-    movies = models.ManyToManyField(Movie, related_name='peoples')
+    movies = models.ManyToManyField(Movie, related_name='peoples', blank=True)
     director = models.CharField(max_length=50, blank=True)
     actor = models.CharField(max_length=150, blank=True)
     
