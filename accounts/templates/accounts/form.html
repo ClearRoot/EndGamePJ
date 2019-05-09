@@ -1,16 +1,32 @@
 {% extends 'base.html' %}
+{% load bootstrap4 %}
 {% load socialaccount %}
 {% block base %}
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit">
-    </form>
-    
-    {% if request.resolver_match.url_name == 'login' %}
-        <a href="{% provider_login_url 'google' method='oauth2' %}">Google</a>
-        <a href="{% provider_login_url 'naver' method='oauth2' %}">Naver</a>
-    {% endif %}
+    <div class="row flex-column accounts">
+        <div class="col-11 offset-sm-1 col-sm-10 offset-md-2 col-md-8">
+            {% if request.resolver_match.url_name == 'signup' %}
+                <h1 class="my-5 ml-2">| 회원가입</h1>
+                <form method="post">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <input type="submit" class="btn btn-dark" value="가입하기">
+                </form>
+            {% elif request.resolver_match.url_name == 'login' %}
+                <h1 class="my-5 ml-2">| 로그인</h1>
+                <form method="post">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+                    <input type="submit" class="btn btn-dark mr-2" value="로그인">
+                    <a href="{% url 'accounts:signup' %}" class="text-dark">회원가입</a>
+                </form>
+            {% endif %}
+            
+            {% if request.resolver_match.url_name == 'login' %}
+            <a href="{% provider_login_url 'google' method='oauth2' %}">Google</a>
+            <br>
+            <a href="{% provider_login_url 'naver' method='oauth2' %}">Naver</a>
+            {% endif %}
+        </div>
+    </div>
     
 {% endblock %}
