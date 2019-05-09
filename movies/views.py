@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 import datetime
 import requests
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 import os
 
 # Create your views here.
