@@ -1,95 +1,107 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 import datetime
 import requests
-# from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
+from .models import Genre, Movie, MovieRank, People
 import os
 
 # Create your views here.
 def list(request):
     
-    # MOVIE_KEY = os.getenv('MOVIE_KEY')
-    # NAVER_ID = os.getenv('NAVER_ID')
-    # NAVER_KEY = os.getenv('NAVER_KEY')
+    MOVIE_KEY = os.getenv('MOVIE_KEY')
+    NAVER_ID = os.getenv('NAVER_ID')
+    NAVER_KEY = os.getenv('NAVER_KEY')
     
-    # genre_list = ['드라마', '코미디', '액션', '멜로/로맨스', '스릴러',
-    #             '미스터리', '공포(호러)', '어드벤처', '범죄', '가족',
-    #             '판타지', 'SF', '서부극(웨스턴)', '사극', '애니메이션',
-    #             '다큐멘터리', '전쟁', '뮤지컬', '성인물(에로)', '공연',
-    #             '기타']
+    genre_list = {
+        '드라마':1, '코미디':2, '액션':3, '멜로/로맨스':4, '스릴러':5,
+        '미스터리':6, '공포(호러)':7, '어드벤처':8, '범죄':9, '가족':10,
+        '판타지':11, 'SF':12, '서부극(웨스턴)':13, '사극':14, '애니메이션':15,
+        '다큐멘터리':16, '전쟁':17, '뮤지컬':18, '성인물(에로)':19, '공연':20,
+        '기타':21
+    }
     
-    # targetDt = datetime.datetime.now() - datetime.timedelta(days=1)
-    # targetDt = targetDt.strftime('%Y%m%d')
-    # URL = f'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={MOVIE_KEY}&targetDt={targetDt}'
-    # res = requests.get(URL)
-    # if res.status_code == 200:
-    #     print("접근완료")
-    #     #json형태를 dict형태로 변환
-    #     res = res.json()
-    #     #최대 10개가 있으므로
-    #     dailyBoxOfficeList = res.get('boxOfficeResult').get('dailyBoxOfficeList')
-    #     """
-    #     변수설명 및 API
-    #     http://www.kobis.or.kr/kobisopenapi/homepg/apiservice/searchServiceInfo.do
-    #     """
-    #     for num in range(10):
-    #         rank = dailyBoxOfficeList[num].get('rank')
-    #         rankInten = dailyBoxOfficeList[num].get('rankInten')
-    #         movieCd = dailyBoxOfficeList[num].get('movieCd')
-    #         movieNm = dailyBoxOfficeList[num].get('movieNm')
-    #         openDt = dailyBoxOfficeList[num].get('openDt')
-    #         audiAcc = dailyBoxOfficeList[num].get('audiAcc')
-        
-    #         data = requests.get('https://openapi.naver.com/v1/search/movie.json?query='+movieNm,
-    #             headers = {
-    #                 'X-Naver-Client-Id':NAVER_ID,
-    #                 'X-Naver-Client-Secret':NAVER_KEY
-    #             }
-    #         )
-    #         data = data.json()
-            
-    #         movieLink = data.get('items')[0].get('link')
-    #         movieLinkURL = requests.get(movieLink)
-    #         if movieLinkURL.status_code == 200:
-    #             soup = BeautifulSoup(movieLinkURL.text, features='html.parser')
-    #             movieContent = soup.select('#content > div.article > div.section_group.section_group_frst > div:nth-child(1) > div > div.story_area > p')
-    #             movieContent = movieContent[0]
-                
-    #         movieImgCode = movieLink.split('https://movie.naver.com/movie/bi/mi/basic.nhn?code=')
-    #         movieImgURL = f'https://movie.naver.com/movie/bi/mi/photoViewPopup.nhn?movieCode={movieImgCode[1]}'
-    #         movieImgURL = requests.get(movieImgURL)
-    #         if movieImgURL.status_code == 200:
-    #             soup = BeautifulSoup(movieImgURL.text, features='html.parser')
-    #             movieImg = soup.select('#targetImage')
-    #             movieImg = movieImg[0].get('src')
+    for d in range(1,130):#130-20190510
+        date = datetime.datetime.now() - datetime.timedelta(days=d)
+        date = date.strftime('%Y%m%d')
+    
+        URL = f'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={MOVIE_KEY}&targetDt={date}'
+        res = requests.get(URL)
+        if res.status_code == 200:
 
-    #         detailURL = f'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key={MOVIE_KEY}&movieCd={movieCd}'
-    #         detail_res = requests.get(detailURL)
-    #         if detail_res.status_code == 200:
-    #             detail_res = detail_res.json()
-    #             movieInfo = detail_res.get('movieInfoResult').get('movieInfo')
+            res = res.json()
+            daily_movies = res.get('boxOfficeResult').get('dailyBoxOfficeList')
+            for num in range(10):
+                rank = daily_movies[num].get('rank')
+                rank_inten = daily_movies[num].get('rankInten')
+                movie_code = daily_movies[num].get('movieCd')
+                movie_name = daily_movies[num].get('movieNm')
+                open_date = daily_movies[num].get('openDt')
+                audience = int(daily_movies[num].get('audiAcc'))
+                data = requests.get('https://openapi.naver.com/v1/search/movie.json?query='+movie_name,
+                    headers = {
+                        'X-Naver-Client-Id':NAVER_ID,
+                        'X-Naver-Client-Secret':NAVER_KEY
+                    }
+                )
+                data = data.json()
                 
-    #             for actor in range(len(movieInfo.get('actors'))):
-    #                 ###변경해야함
-    #                 actors.append(movieInfo.get('actors')[actor].get('peopleNm'))
+                movie_link = data.get('items')[0].get('link')
+                movie_link_url = requests.get(movie_link)
+                print(movie_link)
+                if movie_link_url.status_code == 200:
+                    soup = BeautifulSoup(movie_link_url.text, features='html.parser')
+                    movie_content = soup.select('#content > div.article > div.section_group.section_group_frst > div:nth-child(1) > div > div.story_area > p')
+                    if movie_content:
+                        movie_content = str(movie_content[0])
+                    else:
+                        movie_content = ''
                 
-    #             watchGradeNm = movieInfo.get('audits')[0].get('watchGradeNm')
-                
-    #             for director in range(len(movieInfo.get('directors'))):
-    #                 ###변경해야함
-    #                 directors.append(movieInfo.get('directors')[director].get('peopleNm'))
-                
-    #             for genre in range(len(movieInfo.get('genres'))):
-    #                 for idx in range(len(genre_list)):
-    #                     pass
-                
-    #             movieNmEn = movieInfo.get('movieNmEn')
-                
-    #             nations = movieInfo.get('nations')[0].get('nationNm')
-                
-    #             showTm = movieInfo.get('showTm')
-    #             print(f'{num}번째 완료!!!!!')
-        
-    # else:
-    #     print("접근실패")
+                movie_img_code = movie_link.split('https://movie.naver.com/movie/bi/mi/basic.nhn?code=')
+                if movie_img_code[1]:    
+                    movie_img_url = f'https://movie.naver.com/movie/bi/mi/photoViewPopup.nhn?movieCode={movie_img_code[1]}'
+                    movie_img_url = requests.get(movie_img_url)
+                    if movie_img_url.status_code == 200:
+                        soup = BeautifulSoup(movie_img_url.text, features='html.parser')
+                        image = soup.select('#targetImage')
+                        image = image[0].get('src')
+                else:
+                    image = 'http://tinamovie.com/wp-content/uploads/2018/10/nopicture.jpg'
+    
+                detail_url = f'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key={MOVIE_KEY}&movieCd={movie_code}'
+                detail_res = requests.get(detail_url)
+                if detail_res.status_code == 200:
+                    detail_res = detail_res.json()
+                    movie_info = detail_res.get('movieInfoResult').get('movieInfo')
+                    
+                    watchGradeNm = movie_info.get('audits')[0].get('watchGradeNm')
+                    nations = movie_info.get('nations')[0].get('nationNm')
+                    showTm = int(movie_info.get('showTm'))
+                    
+                    """ Movie Table """
+                    movie = Movie.objects.get_or_create(title=movie_name, content=movie_content, open_date=open_date, image=image, grade=watchGradeNm, nations=nations, show_time=showTm)
+                    movie[0].audience = audience
+                    movie[0].save()
+                    for i in range(len(movie_info.get('genres'))):
+                        idx_num = genre_list[movie_info.get('genres')[i].get('genreNm')]
+                        genre = Genre.objects.get(pk=idx_num)
+                        movie[0].genres.add(genre)
+                    
+                    if movie[1]:
+                        """ People Table """                
+                        for director in range(len(movie_info.get('directors'))):
+                            people = People.objects.get_or_create(director=movie_info.get('directors')[director].get('peopleNm'))
+                            people[0].movies.add(movie[0])
+                        
+                        for actor in range(len(movie_info.get('actors'))):
+                            people = People.objects.get_or_create(actor=movie_info.get('actors')[actor].get('peopleNm'))
+                            people[0].movies.add(movie[0])
+                    
+                    """ MovieRank Table """
+                    MovieRank.objects.get_or_create(movie=movie[0], date=date, rank=rank, rank_inten=rank_inten)
+                    
+                    print(f'{date}, {num}번째 완료!!!!!')
+            
+        else:
+            print("접근실패")
     
     return render(request, 'movies/list.html')
