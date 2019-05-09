@@ -11,6 +11,11 @@
     {% if request.resolver_match.url_name == 'login' %}
         <a href="{% provider_login_url 'google' method='oauth2' %}">Google</a>
         <a href="{% provider_login_url 'naver' method='oauth2' %}">Naver</a>
+        <a href="{% provider_login_url 'instagram' method='oauth2' %}">Instagram</a>
+        <!--<a href="{% provider_login_url 'facebook' method='oauth2' %}">Facebook</a>-->
+        <div class="fb-login-button" data-width="" data-size="large" data-button-type="login_with" data-auto-logout-link="true" data-use-continue-as="true"></div>
     {% endif %}
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/ko_KR/sdk.js#xfbml=1&version=v3.3&appId=289821341931200&autoLogAppEvents=1"></script>
     
 {% endblock %}
