@@ -31,6 +31,8 @@ ETC : Bootstrap
 
 ### 사용 라이브러리
 
+<hr>
+
 ```bash
 # pyenv install
 git clone https://github.com/pyenv/pyenv.git ~/.pyenv
@@ -69,6 +71,8 @@ pip install django-allauth
 """
 사용법 참조 공식github
 https://github.com/matthewwithanm/django-imagekit
+
+cf) 해당 내용은 사용자가 이미지를 업로드할 때 사용하는 Field
 """
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
@@ -76,29 +80,78 @@ from imagekit.processors import ResizeToFill
 
 <br>
 
-### 역할
+### DataBase
 
 <hr>
 
-**문영국**
--MOVIE CRUD
--COMMENT CRUD
+<img src="readme_img/db_tables.PNG" alt="db_tables">
 
+`Genre`
+
+| DB    | API  | 비고      |
+| ----- | ---- | --------- |
+| mtype | -    | 장르 종류 |
+
+`Movie`
+
+| DB        | API          | 비고           |
+| --------- | ------------ | -------------- |
+| genres    | -            | M2M            |
+| title     | movieNm      | 영화진흥위원회 |
+| content   |              | Naver 정보     |
+| open_date | openDt       | 영화진흥위원회 |
+| audience  | audiAcc      | null=True      |
+| image     |              | Naver 정보     |
+| grade     | watchGradeNm | 영화진흥위원회 |
+| nations   | nationNm     | 영화진흥위원회 |
+| show_time | showTm       | 영화진흥위원회 |
+
+`People`
+
+| DB       | API       | 비고      |
+| -------- | --------- | --------- |
+| movies   |           | M2M       |
+| director | directors | null=True |
+| actor    | actors    | null=True |
+
+`MovieRank`
+
+| DB         | API       | 비고           |
+| ---------- | --------- | -------------- |
+| movie      |           | 1:N            |
+| date       | targetDt  | 영화진흥위원회 |
+| rank       | rank      | 영화진흥위원회 |
+| rank_inten | rankInten | 영화진흥위원회 |
+
+<br>
+
+### 역할
+
+<hr>
 **조호근**
--:heavy_check_mark:account(자체 회원가입, Gravatar)
+-account -> 2019.05.03
+
+​	-​ :heavy_check_mark:자체 회원가입
+
+​	- :heavy_check_mark:Gravatar
+
+-front-end
 
 **정태준**
--all-auth(Google, Naver, Facebook)
+-all-auth -> 2019.05.04
 
 ​	- :heavy_check_mark:Google
 
 ​	- :heavy_check_mark:Naver
 
-​	- Facebook
+-데이터 크롤링
 
--데이터 크롤링(영진사)
+​	- :heavy_check_mark:영화진흥위원회API
 
-​	- 일부완료(DB설계시 개시)
+​	- :heavy_check_mark:네이버(검색)
+
+-MOVIE CRUD
+-COMMENT CRUD
 
 **[추가사항]**
 @내 위치에서 가까운 영화관 추천
