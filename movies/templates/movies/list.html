@@ -7,4 +7,18 @@
         <h3>{{user.email|gravatar:50}} {{user.username}}</h3>
     {% endif %}
     
+        
+        <div class="row">
+        {% for movie in movies %}
+            <div class="card" style="width: 18rem;">
+                <img src="{{movie.image}}" class="card-img-top" alt="{{movie.title}}">
+                <div class="card-body">
+                    <h5 class="card-title">{{movie.title}}</h5>
+                    <a href="{% url 'movies:detail' movie.id %}" class="btn btn-light btn-sm">Detail</a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+        
+
 {% endblock %}
