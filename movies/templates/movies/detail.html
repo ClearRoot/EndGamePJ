@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block base %}
+
+    <img src="{{movie.image}}" alt="{{movie.title}}">
+    {{movie.title}}
+    {% for genre in movie.genres.all %}
+        {{genre.mtype}}
+    {% endfor %}
+    {{movie.nations}}
+    {{movie.grade}}
+    {{movie.show_time}}
+    {{movie.content}}
+    {{movie.open_date}}
+    {{movie.audience}}
+
+{% endblock %}
