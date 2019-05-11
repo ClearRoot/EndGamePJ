@@ -4,7 +4,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .froms import CustomUserCreationForm
+from .forms import CustomUserCreationForm
 
 # Create your views here.
 def signup(request):
@@ -37,3 +37,4 @@ def login(request):
 def logout(request):
     auth_logout(request)
     return redirect('movies:list')
+    
