@@ -4,28 +4,28 @@
 {% block base %}
 
 <style>
+    html, body{
+            height: 100%;
+            margin: 0px;
+        }
+    body {
+        background: linear-gradient(to right, rgba(7,7,7,.9), rgba(0,0,0,.5)), url('https://images.unsplash.com/photo-1485095329183-d0797cdc5676?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
     /* accounts */
     .accounts {
-    margin-top: 3rem;
-    margin-bottom: 3rem;
-    justify-content: center;
-    }
-
-    .accounts:after {
-    content: "";
-    z-index: -1;
-    position: absolute;
-    top: 56px;
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 56px);
-    background: linear-gradient(to right, rgba(7,7,7,.9), rgba(0,0,0,.5)), url('https://images.unsplash.com/photo-1485095329183-d0797cdc5676?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80') no-repeat top center / cover;
+        margin-top: 3rem;
+        margin-bottom: 3rem;
+        justify-content: center;
     }
 
     .accounts > div {
-    padding: 3.2rem 3.6rem 2.4rem;
-    background: rgba(7,7,7,.89);
-    box-shadow: 0px 6px 18px rgba(0, 0, 0, 1)
+        padding: 3.2rem 3.6rem 2.4rem;
+        background: rgba(7,7,7,.89);
+        box-shadow: 0px 6px 18px rgba(0, 0, 0, 1)
     }
 </style>
 
