@@ -19,8 +19,11 @@
         <a href="{% url 'movies:update' movie.id %}" class="btn btn-light">UPDATE</a>
         <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light">DELETE</a>
     {% endif %}
-    
-    
+    {% if movie in user.moviedip_set.all %}
+        <a href="{% url 'movies:movie_dip_delete' user.movie %}" class="btn btn-light">찜취소</a>
+    {% else %}
+        <a href="{% url 'movies:movie_dip_create' movie.id %}" class="btn btn-light">찜하기</a>
+    {% endif %}
     <div>
         {% for comment in movie.comment_set.all %}
             <dl class="row">
