@@ -9,6 +9,9 @@ urlpatterns = [
     path('<int:movie_id>/comment', views.comment_create, name='comment_create'),
     path('<int:movie_id>/<int:comment_id>/update', views.comment_update, name='comment_update'),
     path('<int:movie_id>/<int:comment_id>/delete', views.comment_delete, name='comment_delete'),
+    path('<int:movie_id>/score', views.score_create, name='score_create'),
+    path('<int:movie_id>/<int:score_id>/update', views.score_update, name='score_update'),
+    path('<int:movie_id>/<int:score_id>/delete', views.score_delete, name='score_delete'),
     
     path('crawling', views.crawling, name='crawling'),
     path('<int:movie_id>/update', views.update, name='update'),

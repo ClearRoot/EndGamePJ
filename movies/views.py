@@ -14,7 +14,8 @@ def detail(request, movie_id):
     if request.method == 'GET':
         movie = get_object_or_404(Movie, pk=movie_id)
         comment_form = CommentForm()
-    return render(request, 'movies/detail.html', {'movie':movie, 'comment_form':comment_form})
+        score_form = ScoreForm()
+    return render(request, 'movies/detail.html', {'movie':movie, 'comment_form':comment_form, 'score_form':score_form})
 
 @login_required
 def comment_create(request, movie_id):
@@ -43,13 +44,21 @@ def comment_update(request, movie_id, comment_id):
             return render(request, 'movies/detail.html', {'movie':movie, 'comment_form':comment_form})
     #잘못된 접근이므로 Error처리해주는게 옳음
     return redirect('movies:detail', movie_id)
-    
 
 @login_required
 def comment_delete(request, movie_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     comment.delete()
     return redirect('movies:detail', movie_id)
+
+def score_create(request, movie_id, score_id):
+    pass
+
+def score_update(request, movie_id, score_id):
+    pass
+
+def score_delete(request, movie_id, score_id):
+    pass
 
 """Admin"""
 @login_required
