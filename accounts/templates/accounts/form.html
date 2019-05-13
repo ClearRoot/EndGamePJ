@@ -35,26 +35,38 @@
                 <h1 class="my-5 ml-2 text-white">| 회원가입</h1>
                 <form method="post">
                     {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                          {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                     {% bootstrap_label '아이디' label_class='text-white' label_for='id_username' %}
                     {% bootstrap_field form.username  show_label=False placeholder='아이디' %}
                     {% bootstrap_field form.email label_class='text-white' %}
                     {% bootstrap_field form.password1 label_class='text-white' %}
                     {% bootstrap_field form.password2 label_class='text-white' %}
-                    {% buttons %}
-                        <button type="submit" class="btn btn-dark">가입하기</button>
-                    {% endbuttons %}
+                    <button type="submit" class="btn btn-dark">가입하기</button>
                 </form>
             {% elif request.resolver_match.url_name == 'login' %}
                 <h1 class="my-5 ml-2 text-white">| 로그인</h1>
                 <form method="post">
                     {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                     {% bootstrap_label '아이디' label_class='text-white' label_for='id_username' %}
                     {% bootstrap_field form.username  show_label=False placeholder='아이디' %}
                     {% bootstrap_field form.password label_class='text-white' %}
-                    {% buttons %}
+                    <div class="d-flex justify-content-between">
                         <button type="submit" class="btn btn-dark">로그인</button>
                         <a class="btn btn-outline-light" href="{% url 'accounts:signup' %}">회원가입</a>
-                    {% endbuttons %}
+                    </div>
                 </form>
                 <br>
                 <a class="text-white" href="{% provider_login_url 'google' method='oauth2' %}">Google</a>
