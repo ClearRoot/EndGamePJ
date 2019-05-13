@@ -48,17 +48,70 @@ def comment_update(request, movie_id, comment_id):
 @login_required
 def comment_delete(request, movie_id, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
-    comment.delete()
+    if comment.user == request.user:
+        comment.delete()
+        return redirect('movies:detail', movie_id)
+    #잘못된 접근이므로 Error처리해주는게 옳음
     return redirect('movies:detail', movie_id)
 
+@login_required
 def score_create(request, movie_id, score_id):
-    pass
+    movie = get_object_or_404(Movie, pk=movie_id)
+    if request.method == "POST":
+        score_form = ScoreForm(request.POST)
+        if score_form.is_valid():
+            score = score_form.save(commit=False)
+            score.movie = movie
+            score.user = request.user
+            score.save()
+            return redirect('movies:detail', movie_id)
 
+@login_required
 def score_update(request, movie_id, score_id):
-    pass
+    movie = get_object_or_404(Movie, pk=movie_id)
+    score = get_object_or_404(Score, pk=score_id)
+    if request.user == score.user:
+        if request.method == "POST":
+            score_form = ScoreForm(request.POST, instance=score)
+            if score_form.is_valid():
+                score = score_form.save(commit=False)
+                score.save()
+        else:
+            score_form = ScoreForm(instance=comment)
+            return render(request, 'movies/detail.html', {'movie':movie, 'score_form':score_form})
+    #잘못된 접근이므로 Error처리해주는게 옳음
+    return redirect('movies:detail', movie_id)
 
+@login_required
 def score_delete(request, movie_id, score_id):
-    pass
+    score = get_object_or_404(Score, pk=score_id)
+    if score.user == request.user:
+        score.delete()
+        return redirect('movies:detail', movie_id)
+    #잘못된 접근이므로 Error처리해주는게 옳음
+    return redirect('movies:detail', movie_id)
+
+@login_required
+def movie_dip_create(request, movie_id):
+    movie = get_object_or_404(Movie, pk=movie_id)
+    user = request.user
+    MovieDip.objects.create(movie=movie, user=user)
+    return redirect('movies:detail', movie_id)
+
+@login_required
+def movie_dip_delete(request, movie_dip_id):
+    movie_dip = get_object_or_404(MovieDip, pk=movie_dip_id)
+    if movie_dip.user == request.user:
+        movie_dip.delete()
+        return redirect('movies:movie_dip_list')
+    #잘못된 접근이므로 Error처리해주는게 옳음
+    return redirect('movies:detail', movie_id)
+
+@login_required
+def movie_dip_list(request):
+    user = request.user
+    movie_dips = MovieDip.objects.filter(user=user).all()
+    return render(request, 'movies/movie_dip.html', {'movie_dips':movie_dips})
 
 """Admin"""
 @login_required
