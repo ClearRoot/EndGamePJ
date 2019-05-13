@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block base %}
+        
+        <div class="row">
+        {% for movie_dip in movie_dips %}
+            <div class="card" style="width: 18rem;">
+                <img src="{{movie_dip.movie.image}}" class="card-img-top" alt="{{movie_dip.title}}">
+                <div class="card-body">
+                    <h5 class="card-title">{{movie_dip.movie.title}}</h5>
+                </div>
+            <a href="{% url 'movies:movie_dip_delete' movie_dip.id %}" class="btn btn-light">DELETE</a>
+            </div>
+        {% endfor %}
+        </div>
+
+{% endblock %}
