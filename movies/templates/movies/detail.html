@@ -46,4 +46,11 @@
         <input type="submit" value="Submit"/>
     </form>
     
+    <!--모달로 평가 따로 처리-->
+    <form method="POST" action="{% url 'movies:comment_create' movie.id %}">
+        {% csrf_token %}
+        {% bootstrap_form score_form %}
+        <input type="submit" value="Submit"/>
+    </form>
+    
 {% endblock %}
