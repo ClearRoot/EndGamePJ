@@ -1,13 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpResponse
+from django.core import serializers
 from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm, MovieDipForm
 from .models import Genre, Movie, MovieRank, People, Comment, Score, MovieDip
 from .crawling import movie_data
+import json
 
 # Create your views here.
 def list(request):
+    return render(request, 'movies/list.html')
+
+def json_list(request):
     movies = Movie.objects.all()
-    return render(request, 'movies/list.html', {'movies':movies})
+    movies_json = serializers.serialize('json', movies)
+    # return JsonResponse(json.dumps(movies_json, ensure_ascii=False), safe=False)
+    return JsonResponse({"movies_json":movies_json}, content_type="application/json; charset=utf-8")
 
 @login_required
 def detail(request, movie_id):

@@ -1,24 +1,79 @@
 {% extends 'base.html' %}
 {% load gravatar_templatetag %}
 {% block base %}
+<style>
+    .movie-list:after {
+        content: "";
+        z-index: -1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,.9), rgba(0,0,0,0.67)),url(https://images.unsplash.com/photo-1535016120720-40c646be5580?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80) no-repeat top left / cover;
+    }
+    .movie-list .movie-card {
+        border-radius: 0;
+        box-shadow: 0px 6px 18px rgba(0, 0, 0, 1);
+        background-color: rgba(10,10,10,.1);
+        color: rgba(255,255,255,.99);
+        transition: all .2s ease-in-out;
+    }
 
-    <h1>TEST LIST</h1>
-    {% if user.is_authenticated %}
-        <h3>{{user.email|gravatar:50}} {{user.username}}</h3>
-    {% endif %}
-    
-        
-        <div class="row">
-        {% for movie in movies %}
-            <div class="card" style="width: 18rem;">
-                <img src="{{movie.image}}" class="card-img-top" alt="{{movie.title}}">
-                <div class="card-body">
-                    <h5 class="card-title">{{movie.title}}</h5>
-                    <a href="{% url 'movies:detail' movie.id %}" class="btn btn-light btn-sm">Detail</a>
+    .movie-card-wrapper:hover .movie-card {
+        transform: translateY(-8px);
+    }
+</style>
+    <div id="app">
+        <div class="row movie-list">
+            <div class="mx-auto mt-5" v-for="(movie, index) in movies">
+                <div class="movie-card-wrapper">
+                    <img class="movie-card" style="width: 13rem; height: 20rem; cursor: pointer;" v-bind:src=[[movie.fields.image]] v-bind:alt=[[movie.fields.title]] @click="singeMovie(index)">
+                </div>
+                <div class="text-white" v-if="movie.togle">
+                    <p>장르 : [[movie.fields.genre]]</p>
+                    <p>누적 관객 : [[movie.fields.audience]]명</p>
+                    <p v-html="movie.fields.content"></p>
                 </div>
             </div>
-        {% endfor %}
         </div>
-        
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        const MY_SERVER = "http://127.0.0.1:8000"
+        const app = new Vue({
+            delimiters: ['[[', ']]'],
+            el: '#app',
+            data: {
+                movies: [],
+                viewMovieIndex: 0,
+            },
+            mounted: function(){
+                axios.get(`${MY_SERVER}/movies/json/list`)
+                .then((r) => {
+                    console.log(r)
+                    const moviesData = JSON.parse(r.data.movies_json)
+                    this.movies = moviesData.map((m) => {
+                        return {...m, togle: false,}
+                    })
+                })
+                .catch((e) => {console.log(e)})
+            },
+            methods: {
+                singeMovie: function(idx){
+                    if (idx != this.viewMovieIndex){
+                        this.movies[this.viewMovieIndex].togle = false
+                    }
+                    this.movies[idx].togle = !this.movies[idx].togle
+                    this.viewMovieIndex = idx
+                },
+            },
+            watch: {
+                
+            },
+        })
+    </script>
 {% endblock %}

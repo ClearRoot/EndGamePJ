@@ -5,6 +5,7 @@ app_name = 'movies'
 
 urlpatterns = [
     path('list', views.list, name='list'),
+    path('json/list', views.json_list, name='json_list'),
     path('<int:movie_id>', views.detail, name='detail'),
     path('<int:movie_id>/comment', views.comment_create, name='comment_create'),
     path('<int:movie_id>/<int:comment_id>/comment_update', views.comment_update, name='comment_update'),
