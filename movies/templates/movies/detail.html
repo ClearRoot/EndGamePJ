@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bootstrap4 %}
 {% block base %}
 
     <img src="{{movie.image}}" alt="{{movie.title}}">
@@ -12,5 +13,47 @@
     {{movie.content}}
     {{movie.open_date}}
     {{movie.audience}}
-
+    
+    <!--관리자 계정 영화 수정 및 삭제-->
+    {% if user.is_superuser %}
+        <a href="{% url 'movies:update' movie.id %}" class="btn btn-light">UPDATE</a>
+        <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light">DELETE</a>
+    {% endif %}
+    {% if movie in user.moviedip_set.all %}
+        <a href="{% url 'movies:movie_dip_delete' user.movie %}" class="btn btn-light">찜취소</a>
+    {% else %}
+        <a href="{% url 'movies:movie_dip_create' movie.id %}" class="btn btn-light">찜하기</a>
+    {% endif %}
+    <div>
+        {% for comment in movie.comment_set.all %}
+            <dl class="row">
+                <dt class="col-1">{{comment.user.username}}</dt>
+                <dd class="col-6">{{comment.content}}</dd>
+                {% if comment.create_at == comment.update_at %}
+                    <dd class="col-3">{{comment.create_at}}</dd>
+                {% else %}
+                    <dd class="col-3">{{comment.update_at}}</dd>
+                {% endif %}
+                <dd class="col-2">
+                    {% if comment.user == request.user %}
+                        <a href="" class="btn btn-light btn-sm">UPDATE</a>
+                        <a href="{% url 'movies:comment_delete' movie.id comment.id %}" class="btn btn-light btn-sm">DELETE</a>
+                    {% endif %}
+                </dd>
+            </dl>
+        {% endfor %}
+    </div>
+    <form method="POST" action="{% url 'movies:comment_create' movie.id %}">
+        {% csrf_token %}
+        {% bootstrap_form comment_form %}
+        <input type="submit" value="Submit"/>
+    </form>
+    
+    <!--모달로 평가 따로 처리-->
+    <form method="POST" action="{% url 'movies:comment_create' movie.id %}">
+        {% csrf_token %}
+        {% bootstrap_form score_form %}
+        <input type="submit" value="Submit"/>
+    </form>
+    
 {% endblock %}

@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .froms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, CustomUserChangeForm
+from movies.models import Movie
 
 # Create your views here.
 def signup(request):
@@ -33,8 +35,65 @@ def login(request):
     else:
         return redirect('movies:list')
 
-@ login_required
+@login_required
 def logout(request):
     auth_logout(request)
     return redirect('movies:list')
+
+@login_required
+def user_page(request, user_id):
+    User = get_user_model()
+    user_info = get_object_or_404(User, pk=user_id)
+    return render(request, "accounts/user_page.html", {'user_info':user_info})
+
+@login_required
+def follow(request, user_id):
+    User = get_user_model()
+    me = request.user
+    you = get_object_or_404(User, pk=user_id)
+
+    if me != you:
+        if you in me.followings.all():
+            me.followings.remove(you)
+            is_follow = False
+        else:
+            me.followings.add(you)
+            is_follow = True
+    return JsonResponse({'is_follow':is_follow, 'followers_count':you.followers.count()})
+
+@login_required
+def edit_profile(request, user_id):
+    User = get_user_model()
+    user = get_object_or_404(User, pk=user_id)
+    me = request.user
+    if me == user:
+        if request.method == 'POST':
+            form = CustomUserChangeForm(request.POST, request.FILES, instance=user)
+            if form.is_valid():
+                form.save()
+                return redirect('accounts:user_page', user_id)
+        else:
+            form = CustomUserChangeForm(instance=user)
+        return render(request, 'accounts/form.html', {'form':form})
+    return redirect('movies:list')
     
+@login_required
+def leaving_user(request, user_id):
+    user = get_object_or_404(get_user_model(), pk=user_id)
+    if user == request.user:
+        user.delete()
+        return redirect('movies:list')
+    #에러처리해야하는 요소
+    return redirect('movies:list')
+
+@login_required        
+def pickup(request, movie_id):
+    movie = get_object_or_404(Movie, pk=movie_id)
+    user = request.user
+    if movie in user.pick_movie.all():
+        user.pick_movie.remove(movie)
+        is_pickup = False
+    else:
+        user.pick_movie.add(movie)
+        is_pickup = True
+    return JsonResponse({'is_pickup':is_pickup, 'pick_user_count':movie.pick_user.count()})
