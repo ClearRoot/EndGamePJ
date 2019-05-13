@@ -1,145 +1,126 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm, MovieDipForm
-from .models import Genre, Movie, MovieRank, People, Comment, Score, MovieDip
-from .crawling import movie_data
+import datetime
+import requests
+from bs4 import BeautifulSoup
+from .models import Genre, Movie, MovieRank, People
+import os
 
 # Create your views here.
+
 def list(request):
     movies = Movie.objects.all()
     return render(request, 'movies/list.html', {'movies':movies})
-
-@login_required
+    
 def detail(request, movie_id):
-    if request.method == 'GET':
-        movie = get_object_or_404(Movie, pk=movie_id)
-        comment_form = CommentForm()
-        score_form = ScoreForm()
-    return render(request, 'movies/detail.html', {'movie':movie, 'comment_form':comment_form, 'score_form':score_form})
-
-@login_required
-def comment_create(request, movie_id):
-    if request.method == 'POST':
-        movie = get_object_or_404(Movie, pk=movie_id)
-        comment_form = CommentForm(request.POST)
-        if comment_form.is_valid():
-            comment = comment_form.save(commit=False)
-            comment.movie = movie
-            comment.user = request.user
-            comment.save()
-            return redirect('movies:detail', movie_id)
-
-@login_required
-def comment_update(request, movie_id, comment_id):
     movie = get_object_or_404(Movie, pk=movie_id)
-    comment = get_object_or_404(Comment, pk=comment_id)
-    if request.user == comment.user:
-        if request.method == "POST":
-            comment_form = CommentForm(request.POST, instance=comment)
-            if comment_form.is_valid():
-                comment = comment_form.save(commit=False)
-                comment.save()
-        else:
-            comment_form = CommentForm(instance=comment)
-            return render(request, 'movies/detail.html', {'movie':movie, 'comment_form':comment_form})
-    #잘못된 접근이므로 Error처리해주는게 옳음
-    return redirect('movies:detail', movie_id)
+    return render(request, 'movies/detail.html', {'movie':movie})
 
-@login_required
-def comment_delete(request, movie_id, comment_id):
-    comment = get_object_or_404(Comment, pk=comment_id)
-    if comment.user == request.user:
-        comment.delete()
-        return redirect('movies:detail', movie_id)
-    #잘못된 접근이므로 Error처리해주는게 옳음
-    return redirect('movies:detail', movie_id)
-
-@login_required
-def score_create(request, movie_id, score_id):
-    movie = get_object_or_404(Movie, pk=movie_id)
-    if request.method == "POST":
-        score_form = ScoreForm(request.POST)
-        if score_form.is_valid():
-            score = score_form.save(commit=False)
-            score.movie = movie
-            score.user = request.user
-            score.save()
-            return redirect('movies:detail', movie_id)
-
-@login_required
-def score_update(request, movie_id, score_id):
-    movie = get_object_or_404(Movie, pk=movie_id)
-    score = get_object_or_404(Score, pk=score_id)
-    if request.user == score.user:
-        if request.method == "POST":
-            score_form = ScoreForm(request.POST, instance=score)
-            if score_form.is_valid():
-                score = score_form.save(commit=False)
-                score.save()
-        else:
-            score_form = ScoreForm(instance=comment)
-            return render(request, 'movies/detail.html', {'movie':movie, 'score_form':score_form})
-    #잘못된 접근이므로 Error처리해주는게 옳음
-    return redirect('movies:detail', movie_id)
-
-@login_required
-def score_delete(request, movie_id, score_id):
-    score = get_object_or_404(Score, pk=score_id)
-    if score.user == request.user:
-        score.delete()
-        return redirect('movies:detail', movie_id)
-    #잘못된 접근이므로 Error처리해주는게 옳음
-    return redirect('movies:detail', movie_id)
-
-@login_required
-def movie_dip_create(request, movie_id):
-    movie = get_object_or_404(Movie, pk=movie_id)
-    user = request.user
-    MovieDip.objects.create(movie=movie, user=user)
-    return redirect('movies:detail', movie_id)
-
-@login_required
-def movie_dip_delete(request, movie_dip_id):
-    movie_dip = get_object_or_404(MovieDip, pk=movie_dip_id)
-    if movie_dip.user == request.user:
-        movie_dip.delete()
-        return redirect('movies:movie_dip_list')
-    #잘못된 접근이므로 Error처리해주는게 옳음
-    return redirect('movies:detail', movie_id)
-
-@login_required
-def movie_dip_list(request):
-    user = request.user
-    movie_dips = MovieDip.objects.filter(user=user).all()
-    return render(request, 'movies/movie_dip.html', {'movie_dips':movie_dips})
-
-"""Admin"""
-@login_required
 def crawling(request):
     if request.user.is_superuser:
         admin = request.user
-        movie_data()
-        return render(request, 'movies/crawling.html', {'admin':admin})
-    return redirect('movies:list')
-
-@login_required
+        """슈퍼유저만 데이터 크롤링, 안전성을 위해 주석화"""
+        # MOVIE_KEY = os.getenv('MOVIE_KEY')
+        # NAVER_ID = os.getenv('NAVER_ID')
+        # NAVER_KEY = os.getenv('NAVER_KEY')
+        
+        # genre_list = {
+        #     '드라마':1, '코미디':2, '액션':3, '멜로/로맨스':4, '스릴러':5,
+        #     '미스터리':6, '공포(호러)':7, '어드벤처':8, '범죄':9, '가족':10,
+        #     '판타지':11, 'SF':12, '서부극(웨스턴)':13, '사극':14, '애니메이션':15,
+        #     '다큐멘터리':16, '전쟁':17, '뮤지컬':18, '성인물(에로)':19, '공연':20,
+        #     '기타':21
+        # }
+        
+        # for d in range(1,2):#130-20190510
+        #     date = datetime.datetime.now() - datetime.timedelta(days=d)
+        #     date = date.strftime('%Y%m%d')
+        
+        #     URL = f'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key={MOVIE_KEY}&targetDt={date}'
+        #     res = requests.get(URL)
+        #     if res.status_code == 200:
+    
+        #         res = res.json()
+        #         daily_movies = res.get('boxOfficeResult').get('dailyBoxOfficeList')
+        #         for num in range(10):
+        #             rank = daily_movies[num].get('rank')
+        #             rank_inten = daily_movies[num].get('rankInten')
+        #             movie_code = daily_movies[num].get('movieCd')
+        #             movie_name = daily_movies[num].get('movieNm')
+        #             open_date = daily_movies[num].get('openDt')
+        #             audience = int(daily_movies[num].get('audiAcc'))
+        #             data = requests.get('https://openapi.naver.com/v1/search/movie.json?query='+movie_name,
+        #                 headers = {
+        #                     'X-Naver-Client-Id':NAVER_ID,
+        #                     'X-Naver-Client-Secret':NAVER_KEY
+        #                 }
+        #             )
+        #             data = data.json()
+                    
+        #             movie_link = data.get('items')[0].get('link')
+        #             movie_link_url = requests.get(movie_link)
+        #             print(movie_link)
+        #             if movie_link_url.status_code == 200:
+        #                 soup = BeautifulSoup(movie_link_url.text, features='html.parser')
+        #                 movie_content = soup.select('#content > div.article > div.section_group.section_group_frst > div:nth-child(1) > div > div.story_area > p')
+        #                 if movie_content:
+        #                     movie_content = str(movie_content[0])
+        #                 else:
+        #                     movie_content = ''
+                    
+        #             movie_img_code = movie_link.split('https://movie.naver.com/movie/bi/mi/basic.nhn?code=')
+        #             if movie_img_code[1]:    
+        #                 movie_img_url = f'https://movie.naver.com/movie/bi/mi/photoViewPopup.nhn?movieCode={movie_img_code[1]}'
+        #                 movie_img_url = requests.get(movie_img_url)
+        #                 if movie_img_url.status_code == 200:
+        #                     soup = BeautifulSoup(movie_img_url.text, features='html.parser')
+        #                     image = soup.select('#targetImage')
+        #                     image = image[0].get('src')
+        #             else:
+        #                 image = 'http://tinamovie.com/wp-content/uploads/2018/10/nopicture.jpg'
+        
+        #             detail_url = f'http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key={MOVIE_KEY}&movieCd={movie_code}'
+        #             detail_res = requests.get(detail_url)
+        #             if detail_res.status_code == 200:
+        #                 detail_res = detail_res.json()
+        #                 movie_info = detail_res.get('movieInfoResult').get('movieInfo')
+                        
+        #                 grade = movie_info.get('audits')[0].get('watchGradeNm')
+        #                 nations = movie_info.get('nations')[0].get('nationNm')
+        #                 show_time = int(movie_info.get('showTm'))
+                        
+        #                 """ Movie Table """
+        #                 movie = Movie.objects.get_or_create(title=movie_name, content=movie_content, open_date=open_date, image=image, grade=grade, nations=nations, show_time=show_time)
+        #                 movie[0].audience = audience
+        #                 movie[0].save()
+        #                 for i in range(len(movie_info.get('genres'))):
+        #                     idx = genre_list[movie_info.get('genres')[i].get('genreNm')]
+        #                     genre = Genre.objects.get(pk=idx)
+        #                     movie[0].genres.add(genre)
+                        
+        #                 if movie[1]:
+        #                     """ People Table """                
+        #                     for director in range(len(movie_info.get('directors'))):
+        #                         people = People.objects.get_or_create(director=movie_info.get('directors')[director].get('peopleNm'))
+        #                         people[0].movies.add(movie[0])
+                            
+        #                     for actor in range(len(movie_info.get('actors'))):
+        #                         people = People.objects.get_or_create(actor=movie_info.get('actors')[actor].get('peopleNm'))
+        #                         people[0].movies.add(movie[0])
+                        
+        #                 """ MovieRank Table """
+        #                 MovieRank.objects.get_or_create(movie=movie[0], date=date, rank=rank, rank_inten=rank_inten)
+                        
+        #                 print(f'{date}, {num}번째 완료!!!!!')
+                
+        #     else:
+        #         print("접근실패")
+            
+    return render(request, 'movies/data_admin.html', {'admin':admin})
+    
 def update(request, movie_id):
     if request.user.is_superuser:
-        movie = get_object_or_404(Movie, pk=movie_id)
-        if request.method == 'POST':
-            form = MovieForm(request.POST, instance=movie)
-            if form.is_valid():
-                movie = form.save(commit=False)
-                movie.save()
-                return redirect('movies:detail', movie_id)
-        else:
-            form = MovieForm(instance=movie)
-        return render(request, 'movies/form.html', {'form':form})
-    return redirect('movies:list')
+        pass
 
-@login_required
 def delete(request, movie_id):
     if request.user.is_superuser:
-        movie = get_object_or_404(Movie, pk=movie_id)
-        movie.delete()
-    return redirect('movies:list')
+        pass

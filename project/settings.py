@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'imagekit',
     'movies.apps.MoviesConfig',
     'accounts.apps.AccountsConfig',
-    #allauth
     'django.contrib.sites',
     'allauth',
     'allauth.account',

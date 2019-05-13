@@ -3,73 +3,29 @@
 {% load socialaccount %}
 {% block base %}
 
-    <style>
-        /* accounts */
-        .accounts {
-        margin-top: 3rem;
-        margin-bottom: 3rem;
-        justify-content: center;
-        }
-    
-        .accounts:after {
-        content: "";
-        z-index: -1;
-        position: absolute;
-        top: 56px;
-        left: 0;
-        width: 100%;
-        height: calc(100vh - 56px);
-        background: linear-gradient(to right, rgba(7,7,7,.9), rgba(0,0,0,.5)), url('https://images.unsplash.com/photo-1485095329183-d0797cdc5676?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80') no-repeat top center / cover;
-        }
-    
-        .accounts > div {
-        padding: 3.2rem 3.6rem 2.4rem;
-        background: rgba(7,7,7,.89);
-        box-shadow: 0px 6px 18px rgba(0, 0, 0, 1)
-        }
-    </style>
-
     <div class="row flex-column accounts">
         <div class="col-11 offset-sm-1 col-sm-10 offset-md-2 col-md-8">
             {% if request.resolver_match.url_name == 'signup' %}
-                <h1 class="my-5 ml-2 text-white">| 회원가입</h1>
-                <form method="POST">
+                <h1 class="my-5 ml-2">| 회원가입</h1>
+                <form method="post">
                     {% csrf_token %}
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    {% bootstrap_label '아이디' label_class='text-white' label_for='id_username' %}
-                    {% bootstrap_field form.username  show_label=False placeholder='아이디' %}
-                    {% bootstrap_field form.email label_class='text-white' %}
-                    {% bootstrap_field form.password1 label_class='text-white' %}
-                    {% bootstrap_field form.password2 label_class='text-white' %}
-                    <button type="submit" class="btn btn-dark">가입하기</button>
+                    {% bootstrap_form form %}
+                    <input type="submit" class="btn btn-dark" value="가입하기">
                 </form>
             {% elif request.resolver_match.url_name == 'login' %}
-                <h1 class="my-5 ml-2 text-white">| 로그인</h1>
-                <form method="POST">
+                <h1 class="my-5 ml-2">| 로그인</h1>
+                <form method="post">
                     {% csrf_token %}
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    {% bootstrap_label '아이디' label_class='text-white' label_for='id_username' %}
-                    {% bootstrap_field form.username  show_label=False placeholder='아이디' %}
-                    {% bootstrap_field form.password label_class='text-white' %}
-                    <div class="d-flex justify-content-between">
-                        <button type="submit" class="btn btn-dark">로그인</button>
-                        <a class="btn btn-outline-light" href="{% url 'accounts:signup' %}">회원가입</a>
-                    </div>
+                    {% bootstrap_form form %}
+                    <input type="submit" class="btn btn-dark mr-2" value="로그인">
+                    <a href="{% url 'accounts:signup' %}" class="text-dark">회원가입</a>
                 </form>
-                <br>
-                <a class="text-white" href="{% provider_login_url 'google' method='oauth2' %}">Google</a>
+            {% endif %}
+            
+            {% if request.resolver_match.url_name == 'login' %}
+            <a href="{% provider_login_url 'google' method='oauth2' %}">Google</a>
+            <br>
+            <a href="{% provider_login_url 'naver' method='oauth2' %}">Naver</a>
             {% endif %}
         </div>
     </div>

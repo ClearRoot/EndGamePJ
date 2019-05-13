@@ -83,9 +83,8 @@ from imagekit.processors import ResizeToFill
 ### DataBase
 
 <hr>
-<img src="readme_img/db_tables.PNG" alt="db_tables">
 
-**[api연관 Table]**
+<img src="readme_img/db_tables.PNG" alt="db_tables">
 
 `Genre`
 
@@ -152,57 +151,9 @@ from imagekit.processors import ResizeToFill
 ​	- :heavy_check_mark:네이버(검색)
 
 -MOVIE CRUD
-
-​	- :heavy_check_mark:Create -> admin 크롤링
-
-​	- :heavy_check_mark:Read
-
-​	- :heavy_check_mark:Update -> admin
-
-​	- :heavy_check_mark:Delete -> admin
-
 -COMMENT CRUD
 
-​	- :heavy_check_mark:Create
-
-​	- :heavy_check_mark:Read
-
-​	- Update
-
-​	- Delete
-
--SCORE CRUD
-
-​	- Create
-
-​	- Read
-
-​	- Update
-
-​	- Delete
-
--MOVIEDIR CRUD
-
-​	- Create
-
-​	- Read
-
-​	- Update
-
-​	- Delete
-
-<br>
-
 **[추가사항]**
-
-@영화이름 맞추기
-
-@연관 영화 추천
-
-@채팅
-
-@메일링 인증서비스
-
 @내 위치에서 가까운 영화관 추천
-
+@다국어
 @Slack/Telegram 알림
