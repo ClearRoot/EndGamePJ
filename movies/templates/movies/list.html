@@ -39,8 +39,8 @@
                     <div v-if="movie.togle" class="card-img-overlay text-center" style="background-color: rgba(10, 10, 10, .6)">
                         <h5 class="card-title ">[[movie.fields.title]]</h5>
                         <p class="card-text" v-text="movie.fields.open_date.substring(0,4)"></p>
-                        <span v-if="!movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.tempScore > n-1 ? {checked:true}  : '']" @mouseover="movie.tempScore = n" @mouseout="movie.tempScore = 0" @click="movie.score = n"></span>
-                        <span v-if="movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.score > n-1 ? {checked:true}  : '']" @click="movie.score = 0"></span>
+                        <span v-if="!movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.tempScore > n-1 ? {checked:true}  : '']" @mouseover="movie.tempScore = n" @mouseout="movie.tempScore = 0" @click="scoreCreate(movie.pk, n)"></span>
+                        <span v-if="movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.score > n-1 ? {checked:true}  : '']" @click="scoreDelete(movie.pk, movie.scoreId)"></span>
                     </div>
                 </div>
             </div>
@@ -55,22 +55,55 @@
             el: '#app',
             data: {
                 movies: [],
-                genre_list: [],
+                userId: 0,
                 viewMovieIndex: 0,
             },
             mounted: function(){
                 axios.get(`${MY_SERVER}/movies/json/list`)
                 .then((r) => {
-                    console.log(r)
+                    // console.log(r.data.movies_json)
+                    // console.log(r.data.scores_json)
                     const moviesData = JSON.parse(r.data.movies_json)
+                    const scoreData = JSON.parse(r.data.scores_json)
+                    this.userId = r.data.user_id
+                    // console.log(scoreData)
                     this.movies = moviesData.map((m) => {
-                        return {...m, togle: false, score: 0, tempScore: 0}
+                        return {...m, togle: false, score: 0, scoreId: 0, tempScore: 0}
                     })
+                    // console.log(this.movies)
+                    this.movies = this.movies.reduce((map, movie)=>{
+                        map[movie.pk] = movie;
+                        return map;
+                    }, {})
+                    // console.log(this.movies)
+                    scoreData.forEach(score => {
+                        const movie_id = score.fields.movie
+                        const score_value = score.fields.value
+                        const score_id = score.pk
+                        this.movies[`${movie_id}`].score = score_value
+                        this.movies[`${movie_id}`].scoreId = score_id
+                        // console.log(this.movies[`${movie_id}`])
+                    });
                 })
                 .catch((e) => {console.log(e)})
             },
             methods: {
-
+                scoreDelete: function(movie_id, score_id){
+                    axios.get(`${MY_SERVER}/movies/${movie_id}/${score_id}/score_delete`)
+                    .then((r) => {
+                        this.movies[`${movie_id}`].score = 0
+                        this.movies[`${movie_id}`].scoreId = 0
+                    })
+                    .catch((e) => {console.log(e)})
+                },
+                scoreCreate: function(movie_id, value){
+                    axios.get(`${MY_SERVER}/movies/${movie_id}/score`, {params: {value: value}})
+                    .then((r) => {
+                        this.movies[`${movie_id}`].score = `${value}`
+                        this.movies[`${movie_id}`].scoreId = r.data.score_id
+                    })
+                    .catch((e) => {console.log(e)})
+                },
             },
             watch: {
                 
