@@ -2,7 +2,11 @@
 {% load bootstrap4 %}
 {% block base %}
 
-    <img src="{{movie.image}}" alt="{{movie.title}}">
+    <img src="{{movie.image}}" alt="{{movie.title}}" style="width: 21rem; height: 28rem;">
+    <br>
+    <div id="player"></div>
+
+    
     {{movie.title}}
     {% for genre in movie.genres.all %}
         {{genre.mtype}}
@@ -16,18 +20,13 @@
     
     <!--영화 찜하기-->
     {% if movie in user.pick_movie.all %}
-        <span data-id="{{movie.id}}" class="btn btn-outline-danger"
+        <span data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn"></span>
     {% else %}
     {% endif %}
     <!--관리자 계정 영화 수정 및 삭제-->
     {% if user.is_superuser %}
         <a href="{% url 'movies:update' movie.id %}" class="btn btn-light">UPDATE</a>
         <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light">DELETE</a>
-    {% endif %}
-    {% if movie in user.moviedip_set.all %}
-        <a href="{% url 'movies:movie_dip_delete' user.movie %}" class="btn btn-light">찜취소</a>
-    {% else %}
-        <a href="{% url 'movies:movie_dip_create' movie.id %}" class="btn btn-light">찜하기</a>
     {% endif %}
     <div>
         {% for comment in movie.comment_set.all %}
@@ -56,16 +55,50 @@
         <input type="submit" value="Submit"/>
     </form>
     
-    <!--모달로 평가 따로 처리-->
-    <form method="POST" action="{% url 'movies:score_create' movie.id %}">
-        {% csrf_token %}
-        {% bootstrap_form score_form %}
-        <input type="submit" value="Submit"/>
-    </form>
-    
-    <script type="text/javascript">
-        let pickBtnList = document.getElementsByClassName('pick_btn')
+    <script>
+        /* IFRAME */
+        // 2. This code loads the IFrame Player API code asynchronously.
+        var tag = document.createElement('script');
+      
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      
+        // 3. This function creates an <iframe> (and YouTube player)
+        //    after the API code downloads.
+        var player;
+        function onYouTubeIframeAPIReady() {
+          player = new YT.Player('player', {
+            height: '360',
+            width: '640',
+            videoId: 'SUXWAEX2jlg',
+            events: {
+              'onReady': onPlayerReady,
+              'onStateChange': onPlayerStateChange
+            }
+          });
+        }
+      
+        // 4. The API will call this function when the video player is ready.
+        function onPlayerReady(event) {
+          event.target.playVideo();
+        }
+      
+        // 5. The API calls this function when the player's state changes.
+        //    The function indicates that when playing a video (state=1),
+        //    the player should play for six seconds and then stop.
+        var done = false;
+        function onPlayerStateChange(event) {
+          if (event.data == YT.PlayerState.PLAYING && !done) {
+            setTimeout(stopVideo, 6000);
+            done = true;
+          }
+        }
+        function stopVideo() {
+          player.stopVideo();
+        }
         
+        /* pickBtn */
+        let pickBtnList = document.getElementsByClassName('pick_btn')
     </script>
-    
 {% endblock %}
