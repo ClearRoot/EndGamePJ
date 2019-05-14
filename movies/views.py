@@ -2,32 +2,34 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
-from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm, MovieDipForm
-from .models import Genre, Movie, MovieRank, People, Comment, Score, MovieDip
+from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm
+from .models import Genre, Movie, MovieRank, People, Comment, Score
 from .crawling import movie_data
 import json
 
 # Create your views here.
+@login_required
 def list(request):
     if request.user.is_authenticated:
         return render(request, 'movies/list.html')
     #else일때
     return render(request, 'movies/main.html')
         
-
+@login_required
 def json_list(request):
     movies = Movie.objects.all()
+    scores = Score.objects.filter(user=request.user).all()
     movies_json = serializers.serialize('json', movies)
+    scores_json = serializers.serialize('json', scores)
     # return JsonResponse(json.dumps(movies_json, ensure_ascii=False), safe=False)
-    return JsonResponse({"movies_json":movies_json}, content_type="application/json; charset=utf-8")
+    return JsonResponse({'movies_json':movies_json, 'scores_json':scores_json}, content_type='application/json; charset=utf-8')
 
 @login_required
 def detail(request, movie_id):
     if request.method == 'GET':
         movie = get_object_or_404(Movie, pk=movie_id)
         comment_form = CommentForm()
-        score_form = ScoreForm()
-    return render(request, 'movies/detail.html', {'movie':movie, 'comment_form':comment_form, 'score_form':score_form})
+    return render(request, 'movies/detail.html', {'movie':movie, 'comment_form':comment_form})
 
 @login_required
 def comment_create(request, movie_id):
@@ -70,60 +72,40 @@ def comment_delete(request, movie_id, comment_id):
 def score_create(request, movie_id, score_id):
     movie = get_object_or_404(Movie, pk=movie_id)
     if request.method == "POST":
+        is_res = False
         score_form = ScoreForm(request.POST)
         if score_form.is_valid():
             score = score_form.save(commit=False)
             score.movie = movie
             score.user = request.user
             score.save()
-            return redirect('movies:detail', movie_id)
+            is_res = True
+        return JsonResponse({'is_res':is_res})
 
-@login_required
-def score_update(request, movie_id, score_id):
-    movie = get_object_or_404(Movie, pk=movie_id)
-    score = get_object_or_404(Score, pk=score_id)
-    if request.user == score.user:
-        if request.method == "POST":
-            score_form = ScoreForm(request.POST, instance=score)
-            if score_form.is_valid():
-                score = score_form.save(commit=False)
-                score.save()
-        else:
-            score_form = ScoreForm(instance=comment)
-            return render(request, 'movies/detail.html', {'movie':movie, 'score_form':score_form})
-    #잘못된 접근이므로 Error처리해주는게 옳음
-    return redirect('movies:detail', movie_id)
+# @login_required
+# def score_update(request, movie_id, score_id):
+#     movie = get_object_or_404(Movie, pk=movie_id)
+#     score = get_object_or_404(Score, pk=score_id)
+#     if request.user == score.user:
+#         if request.method == "POST":
+#             score_form = ScoreForm(request.POST, instance=score)
+#             if score_form.is_valid():
+#                 score = score_form.save(commit=False)
+#                 score.save()
+#         else:
+#             score_form = ScoreForm(instance=comment)
+#             return render(request, 'movies/detail.html', {'movie':movie, 'score_form':score_form})
+#     #잘못된 접근이므로 Error처리해주는게 옳음
+#     return redirect('movies:detail', movie_id)
 
 @login_required
 def score_delete(request, movie_id, score_id):
     score = get_object_or_404(Score, pk=score_id)
+    is_res = False
     if score.user == request.user:
         score.delete()
-        return redirect('movies:detail', movie_id)
-    #잘못된 접근이므로 Error처리해주는게 옳음
-    return redirect('movies:detail', movie_id)
-
-@login_required
-def movie_dip_create(request, movie_id):
-    movie = get_object_or_404(Movie, pk=movie_id)
-    user = request.user
-    MovieDip.objects.create(movie=movie, user=user)
-    return redirect('movies:detail', movie_id)
-
-@login_required
-def movie_dip_delete(request, movie_dip_id):
-    movie_dip = get_object_or_404(MovieDip, pk=movie_dip_id)
-    if movie_dip.user == request.user:
-        movie_dip.delete()
-        return redirect('movies:movie_dip_list')
-    #잘못된 접근이므로 Error처리해주는게 옳음
-    return redirect('movies:detail', movie_id)
-
-@login_required
-def movie_dip_list(request):
-    user = request.user
-    movie_dips = MovieDip.objects.filter(user=user).all()
-    return render(request, 'movies/movie_dip.html', {'movie_dips':movie_dips})
+        is_res = True
+        return JsonResponse({'is_res':is_res})
 
 """Admin"""
 @login_required
