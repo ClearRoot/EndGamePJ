@@ -6,12 +6,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>EndGame</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <nav class="navbar sticky-top navbar-expand-lg navbar-dark px-5">
-        <a href="{% url 'movies:list' %}" class="navbar-brand">EndGame</a>
+        <a href="{% url 'movies:list' %}" class="navbar-brand"><i class="fas fa-cubes"></i>&nbsp;EndGame</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -19,11 +20,13 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a href="#" class="nav-link">New</a>
-                </li>
-                <li class="nav-item">
-                        <a href="#" class="nav-link">MyPage</a>
+
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">New</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'accounts:user_page' user.id %}" class="nav-link">MyPage</a>
+
                     </li>
                     <li class="nav-item">
                         <a href="{% url 'accounts:logout' %}" class="nav-link">Logout</a>

@@ -27,7 +27,9 @@
     <div>
         {% for comment in movie.comment_set.all %}
             <dl class="row">
-                <dt class="col-1">{{comment.user.username}}</dt>
+                <a href="{% url 'accounts:user_page' comment.user.id %}">
+                    <dt class="col-1">{{comment.user.username}}</dt>
+                </a>
                 <dd class="col-6">{{comment.content}}</dd>
                 {% if comment.create_at == comment.update_at %}
                     <dd class="col-3">{{comment.create_at}}</dd>
@@ -50,7 +52,7 @@
     </form>
     
     <!--모달로 평가 따로 처리-->
-    <form method="POST" action="{% url 'movies:comment_create' movie.id %}">
+    <form method="POST" action="{% url 'movies:score_create' movie.id %}">
         {% csrf_token %}
         {% bootstrap_form score_form %}
         <input type="submit" value="Submit"/>
