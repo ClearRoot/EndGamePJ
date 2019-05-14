@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm
@@ -22,7 +23,7 @@ def json_list(request):
     movies_json = serializers.serialize('json', movies)
     scores_json = serializers.serialize('json', scores)
     # return JsonResponse(json.dumps(movies_json, ensure_ascii=False), safe=False)
-    return JsonResponse({'movies_json':movies_json, 'scores_json':scores_json}, content_type='application/json; charset=utf-8')
+    return JsonResponse({'movies_json':movies_json, 'scores_json':scores_json, 'user_id':request.user.id}, content_type='application/json; charset=utf-8')
 
 @login_required
 def detail(request, movie_id):
@@ -69,18 +70,23 @@ def comment_delete(request, movie_id, comment_id):
     return redirect('movies:detail', movie_id)
 
 @login_required
-def score_create(request, movie_id, score_id):
+def score_create(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
-    if request.method == "POST":
-        is_res = False
-        score_form = ScoreForm(request.POST)
-        if score_form.is_valid():
-            score = score_form.save(commit=False)
-            score.movie = movie
-            score.user = request.user
-            score.save()
-            is_res = True
-        return JsonResponse({'is_res':is_res})
+    is_res = False
+    if request.method == "GET":
+        user = request.user
+        value = int(request.GET.get('value'))
+        score = Score.objects.create(movie=movie, user=user, value=value)
+        is_res = True
+        # score_form = ScoreForm(request.POST)
+        # if score_form.is_valid():
+        #     score = score_form.save(commit=False)
+        #     score.movie = movie
+        #     score.user = request.user
+        #     score.save()
+        #     is_res = True
+        #     score_id = score.id
+    return JsonResponse({'is_res':is_res, 'score_id':score.id})
 
 # @login_required
 # def score_update(request, movie_id, score_id):
