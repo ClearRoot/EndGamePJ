@@ -18,7 +18,7 @@ def movie_data():
         '기타':21
     }
     
-    for d in range(132,0,-1):#131-20190513
+    for d in range(1,3):#132,0,-1-20190514
         date = datetime.datetime.now() - datetime.timedelta(days=d)
         date = date.strftime('%Y%m%d')
     

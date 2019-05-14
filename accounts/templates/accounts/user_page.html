@@ -3,10 +3,44 @@
 {% block base %}
 
     <h1>User Page</h1>
-    {% if user.is_authenticated %}
-        <h3>{{user.email|gravatar:50}} {{user.username}}</h3>
+    {% if user_info.is_authenticated %}
+        <h3>{{user_info.email|gravatar:50}} {{user_info.username}}</h3>
     {% endif %}
     
-    <a href="{% url 'accounts:leaving_user' user.id %}">회원탈퇴</a>
-
+    {% if request.user == user_info %}
+        <a href="{% url 'accounts:edit_profile' user.id %}" class="btn btn-light">회원수정</a>
+        <a href="{% url 'accounts:leaving_user' user.id %}" class="btn btn-light">회원탈퇴</a>
+    {% else %}
+        {% if user_info in user.followings.all %}
+            <span data-id="{{user_info.id}}" class="btn btn-light follow_btn" style="cursor:pointer">팔로잉</span>
+        {% else %}
+            <span data-id="{{user_info.id}}" class="btn btn-primary follow_btn" style="cursor:pointer">팔로우</span>
+        {% endif %}
+    {% endif %}
+    <p>팔로잉 : <span id="followings_count_{{user_info.id}}">{{user_info.followings.count}}</span></p>
+    <p>팔로워 : <span id="follows_count_{{user_info.id}}">{{user_info.followers.count}}</span></p>
+    
+<script type="text/javascript">
+    let followBtnList = document.getElementsByClassName('follow_btn')
+    for(const followBtn of followBtnList){
+        followBtn.addEventListener('click', e => {
+            const follow_id = e.target.dataset.id
+            axios.get(`/accounts/follow/${follow_id}`)
+            .then(function(res){
+                if(res.data.is_follow){
+                    e.target.classList.remove('btn-primary')
+                    e.target.classList.add('btn-light')
+                }else{
+                    e.target.classList.remove('btn-light')
+                    e.target.classList.add('btn-primary')
+                }
+                document.getElementById(`followings_count_${follow_id}`).innerHTML = res.data.followings_count
+                document.getElementById(`follows_count_${follow_id}`).innerHTML = res.data.follows_count
+            })
+            .catch(function(error){
+                console.log(error)
+            })
+        })
+    }
+</script>
 {% endblock %}

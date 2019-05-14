@@ -64,6 +64,8 @@ pip install django-imagekit
 
 #oauth
 pip install django-allauth
+#CORS
+django-cors-headers
 ```
 
 ```python

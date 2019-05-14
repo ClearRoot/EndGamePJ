@@ -5,7 +5,8 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from django.contrib.auth.hashers import check_password
+from .forms import CustomUserCreationForm, CustomUserPasswordForm, CustomUserChangeForm
 from movies.models import Movie
 
 # Create your views here.
@@ -47,21 +48,6 @@ def user_page(request, user_id):
     return render(request, "accounts/user_page.html", {'user_info':user_info})
 
 @login_required
-def follow(request, user_id):
-    User = get_user_model()
-    me = request.user
-    you = get_object_or_404(User, pk=user_id)
-
-    if me != you:
-        if you in me.followings.all():
-            me.followings.remove(you)
-            is_follow = False
-        else:
-            me.followings.add(you)
-            is_follow = True
-    return JsonResponse({'is_follow':is_follow, 'followers_count':you.followers.count()})
-
-@login_required
 def edit_profile(request, user_id):
     User = get_user_model()
     user = get_object_or_404(User, pk=user_id)
@@ -76,6 +62,40 @@ def edit_profile(request, user_id):
             form = CustomUserChangeForm(instance=user)
         return render(request, 'accounts/form.html', {'form':form})
     return redirect('movies:list')
+    
+@login_required
+def password_enter_form(request):
+    user = request.user
+    if request.method == 'POST':
+        pwd = request.POST.get('pwd')
+        if check_password(pwd, user.password):
+            # if request.POST.get('com') == 'leave':
+            #     return redirect('accounts:leaving_user', user.id)
+            # elif request.POST.get('com') == 'update':
+            #     return redirect('accounts:edit_profile', user.id)
+            # else:
+            #     #잘못된접근 에러처리
+            #     return redirect('movies:list')
+            return check_password(pwd, user.password)
+    else:
+        com = 'leaving_user'
+    return render(request, 'accounts/password_form.html', {'com':com})
+    
+@login_required
+def follow(request, user_id):
+    User = get_user_model()
+    me = request.user
+    you = get_object_or_404(User, pk=user_id)
+
+    if me != you:
+        if you in me.followings.all():
+            me.followings.remove(you)
+            is_follow = False
+        else:
+            me.followings.add(you)
+            is_follow = True
+    return JsonResponse({'is_follow':is_follow, 'follows_count':you.followers.count(), 'followings_count':you.followings.count()})
+
     
 @login_required
 def leaving_user(request, user_id):

@@ -150,6 +150,7 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = "movies:list"
 
 CORS_ORIGIN_WHITELIST = [
+    "http://endgame-jtj0525.c9users.io:8080",
     "http://localhost:8000",
     "http://localhost:8080",
     ]
