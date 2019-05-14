@@ -14,6 +14,11 @@
     {{movie.open_date}}
     {{movie.audience}}
     
+    <!--영화 찜하기-->
+    {% if movie in user.pick_movie.all %}
+        <span data-id="{{movie.id}}" class="btn btn-outline-danger"
+    {% else %}
+    {% endif %}
     <!--관리자 계정 영화 수정 및 삭제-->
     {% if user.is_superuser %}
         <a href="{% url 'movies:update' movie.id %}" class="btn btn-light">UPDATE</a>
@@ -57,5 +62,10 @@
         {% bootstrap_form score_form %}
         <input type="submit" value="Submit"/>
     </form>
+    
+    <script type="text/javascript">
+        let pickBtnList = document.getElementsByClassName('pick_btn')
+        
+    </script>
     
 {% endblock %}

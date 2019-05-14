@@ -1,5 +1,5 @@
 from django import forms
-from .models import Genre, Movie, MovieRank, People, Comment, Score, MovieDip
+from .models import Genre, Movie, MovieRank, People, Comment, Score
 
 class MovieForm(forms.ModelForm):
     class Meta:
@@ -25,8 +25,3 @@ class ScoreForm(forms.ModelForm):
     class Meta:
         model = Score
         fields = ['value',]
-        
-class MovieDipForm(forms.ModelForm):
-    class Meta:
-        model = MovieDip
-        fields = ['movie',]

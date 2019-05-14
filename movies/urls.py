@@ -11,11 +11,8 @@ urlpatterns = [
     path('<int:movie_id>/<int:comment_id>/comment_update', views.comment_update, name='comment_update'),
     path('<int:movie_id>/<int:comment_id>/comment_delete', views.comment_delete, name='comment_delete'),
     path('<int:movie_id>/score', views.score_create, name='score_create'),
-    path('<int:movie_id>/<int:score_id>/score_update', views.score_update, name='score_update'),
+    # path('<int:movie_id>/<int:score_id>/score_update', views.score_update, name='score_update'),
     path('<int:movie_id>/<int:score_id>/score_delete', views.score_delete, name='score_delete'),
-    path('<int:movie_id>/movie_dip', views.movie_dip_create, name='movie_dip_create'),
-    path('<int:movie_dip_id>/movie_dip/delete', views.movie_dip_delete, name='movie_dip_delete'),
-    path('movie_dip', views.movie_dip_list, name='movie_dip_list'),
     
     path('crawling', views.crawling, name='crawling'),
     path('<int:movie_id>/update', views.update, name='update'),

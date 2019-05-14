@@ -116,4 +116,4 @@ def pickup(request, movie_id):
     else:
         user.pick_movie.add(movie)
         is_pickup = True
-    return JsonResponse({'is_pickup':is_pickup, 'pick_user_count':movie.pick_user.count()})
+    return JsonResponse({'is_pickup':is_pickup, 'pick_user_count':movie.pick_user.count(), 'pick_movie_count':user.pick_movie.count()})

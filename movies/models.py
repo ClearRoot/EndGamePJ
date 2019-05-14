@@ -7,8 +7,6 @@ from imagekit.processors import ResizeToFill
 # Create your models here.
 class Genre(models.Model):
     mtype = models.CharField(max_length=30)
-    def __str__(self):
-        return self.mtype
     
 class Movie(models.Model):
     genre = models.ManyToManyField(Genre, related_name='movies', blank=True)
@@ -42,14 +40,10 @@ class Comment(models.Model):
 class Score(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    value = models.FloatField(
+    value = models.IntegerField(
         validators = (
             MaxValueValidator(5),
             MinValueValidator(0),
         )
     )
     create_at = models.DateTimeField(auto_now_add=True)
-
-class MovieDip(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
