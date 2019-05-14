@@ -20,27 +20,27 @@
     <p>팔로잉 : <span id="followings_count_{{user_info.id}}">{{user_info.followings.count}}</span></p>
     <p>팔로워 : <span id="follows_count_{{user_info.id}}">{{user_info.followers.count}}</span></p>
     
-<script type="text/javascript">
-    let followBtnList = document.getElementsByClassName('follow_btn')
-    for(const followBtn of followBtnList){
-        followBtn.addEventListener('click', e => {
-            const follow_id = e.target.dataset.id
-            axios.get(`/accounts/follow/${follow_id}`)
-            .then(function(res){
-                if(res.data.is_follow){
-                    e.target.classList.remove('btn-primary')
-                    e.target.classList.add('btn-light')
-                }else{
-                    e.target.classList.remove('btn-light')
-                    e.target.classList.add('btn-primary')
-                }
-                document.getElementById(`followings_count_${follow_id}`).innerHTML = res.data.followings_count
-                document.getElementById(`follows_count_${follow_id}`).innerHTML = res.data.follows_count
+    <script type="text/javascript">
+        let followBtnList = document.getElementsByClassName('follow_btn')
+        for(const followBtn of followBtnList){
+            followBtn.addEventListener('click', e => {
+                const follow_id = e.target.dataset.id
+                axios.get(`/accounts/follow/${follow_id}`)
+                .then(function(res){
+                    if(res.data.is_follow){
+                        e.target.classList.remove('btn-primary')
+                        e.target.classList.add('btn-light')
+                    }else{
+                        e.target.classList.remove('btn-light')
+                        e.target.classList.add('btn-primary')
+                    }
+                    document.getElementById(`followings_count_${follow_id}`).innerHTML = res.data.followings_count
+                    document.getElementById(`follows_count_${follow_id}`).innerHTML = res.data.follows_count
+                })
+                .catch(function(error){
+                    console.log(error)
+                })
             })
-            .catch(function(error){
-                console.log(error)
-            })
-        })
-    }
-</script>
+        }
+    </script>
 {% endblock %}
