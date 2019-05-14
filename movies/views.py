@@ -9,7 +9,11 @@ import json
 
 # Create your views here.
 def list(request):
-    return render(request, 'movies/list.html')
+    if request.user.is_authenticated:
+        return render(request, 'movies/list.html')
+    #else일때
+    return render(request, 'movies/main.html')
+        
 
 def json_list(request):
     movies = Movie.objects.all()
