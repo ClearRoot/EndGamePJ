@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load gravatar_templatetag %}
 {% block base %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
     .movie-list:after {
         content: "";
@@ -12,7 +13,7 @@
         height: 100%;
         background: linear-gradient(to top, rgba(0,0,0,.9), rgba(0,0,0,0.67)),url(https://images.unsplash.com/photo-1535016120720-40c646be5580?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80) no-repeat top left / cover;
     }
-    .movie-list .movie-card {
+    .movie-list .card {
         border-radius: 0;
         box-shadow: 0px 6px 18px rgba(0, 0, 0, 1);
         background-color: rgba(10,10,10,.1);
@@ -20,28 +21,35 @@
         transition: all .2s ease-in-out;
     }
 
-    .movie-card-wrapper:hover .movie-card {
+    .card-wrapper:hover .card {
         transform: translateY(-8px);
     }
+
+    .checked {
+        color: orange;
+    }
+    
 </style>
+
     <div id="app">
         <div class="row movie-list">
-            <div class="mx-auto mt-5" v-for="(movie, index) in movies">
-                <div class="movie-card-wrapper">
-                    <img class="movie-card" style="width: 13rem; height: 20rem; cursor: pointer;" v-bind:src=[[movie.fields.image]] v-bind:alt=[[movie.fields.title]] @click="singeMovie(index)">
-                </div>
-                <div class="text-white" v-if="movie.togle">
-                    <p>장르 : [[movie.fields.genre]]</p>
-                    <p>누적 관객 : [[movie.fields.audience]]명</p>
-                    <p v-html="movie.fields.content"></p>
+            <div class="card-wrapper mx-auto mt-5" v-for="(movie, index) in movies">
+                <div class="card bg-dark text-white" @mouseover="movie.togle = true" @mouseleave="movie.togle = false">
+                    <img v-bind:src="movie.fields.image" class="card-img" v-bind:alt="movie.fields.title" style="width: 13rem; height: 20rem; cursor: pointer;">
+                    <div v-if="movie.togle" class="card-img-overlay text-center" style="background-color: rgba(10, 10, 10, .6)">
+                        <h5 class="card-title ">[[movie.fields.title]]</h5>
+                        <p class="card-text" v-text="movie.fields.open_date.substring(0,4)"></p>
+                        <span v-if="!movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.tempScore > n-1 ? {checked:true}  : '']" @mouseover="movie.tempScore = n" @mouseout="movie.tempScore = 0" @click="movie.score = n"></span>
+                        <span v-if="movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.score > n-1 ? {checked:true}  : '']" @click="movie.score = 0"></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // const MY_SERVER = "http://127.0.0.1:8000"
-        const MY_SERVER = "http://endgame-jtj0525.c9users.io:8080"
+        const MY_SERVER = "http://127.0.0.1:8000"
+        // const MY_SERVER = "http://endgame-jtj0525.c9users.io:8080"
         const app = new Vue({
             delimiters: ['[[', ']]'],
             el: '#app',
@@ -55,19 +63,13 @@
                     console.log(r)
                     const moviesData = JSON.parse(r.data.movies_json)
                     this.movies = moviesData.map((m) => {
-                        return {...m, togle: false,}
+                        return {...m, togle: false, score: 0, tempScore: 0}
                     })
                 })
                 .catch((e) => {console.log(e)})
             },
             methods: {
-                singeMovie: function(idx){
-                    if (idx != this.viewMovieIndex){
-                        this.movies[this.viewMovieIndex].togle = false
-                    }
-                    this.movies[idx].togle = !this.movies[idx].togle
-                    this.viewMovieIndex = idx
-                },
+
             },
             watch: {
                 
