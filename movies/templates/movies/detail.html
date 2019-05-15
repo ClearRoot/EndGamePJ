@@ -1,61 +1,142 @@
 {% extends 'base.html' %}
 {% load bootstrap4 %}
 {% block base %}
+    <style>
+        body {
+            background-color: rgb(7,7,7);
+        }
 
-    <img src="{{movie.image}}" alt="{{movie.title}}" style="width: 21rem; height: 28rem;">
-    <br>
-    <div id="player"></div>
+        .movie-detail-bg {
+            z-index: -1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 79vh;
+            overflow: hidden;
+        }
 
-    
-    {{movie.title}}
-    {% for genre in movie.genres.all %}
-        {{genre.mtype}}
-    {% endfor %}
-    {{movie.nations}}
-    {{movie.grade}}
-    {{movie.show_time}}
-    {{movie.content}}
-    {{movie.open_date}}
-    {{movie.audience}}
-    
-    <!--영화 찜하기-->
-    {% if movie in user.pick_movie.all %}
-        <span data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn"></span>
-    {% else %}
-    {% endif %}
-    <!--관리자 계정 영화 수정 및 삭제-->
-    {% if user.is_superuser %}
-        <a href="{% url 'movies:update' movie.id %}" class="btn btn-light">UPDATE</a>
-        <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light">DELETE</a>
-    {% endif %}
-    <div>
-        {% for comment in movie.comment_set.all %}
-            <dl class="row">
-                <a href="{% url 'accounts:user_page' comment.user.id %}">
-                    <dt class="col-1">{{comment.user.username}}</dt>
-                </a>
-                <dd class="col-6">{{comment.content}}</dd>
-                {% if comment.create_at == comment.update_at %}
-                    <dd class="col-3">{{comment.create_at}}</dd>
-                {% else %}
-                    <dd class="col-3">{{comment.update_at}}</dd>
-                {% endif %}
-                <dd class="col-2">
-                    {% if comment.user == request.user %}
-                        <a href="" class="btn btn-light btn-sm">UPDATE</a>
-                        <a href="{% url 'movies:comment_delete' movie.id comment.id %}" class="btn btn-light btn-sm">DELETE</a>
-                    {% endif %}
-                </dd>
-            </dl>
-        {% endfor %}
+        .movie-detail-bg:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,.97), rgba(0,0,0,.67));
+        }
+
+        .movie-detail-bg img{
+            width: 100%;
+            height: auto;
+            filter: blur(3px);
+        }
+    </style>
+
+    <div class="movie-detail-bg">
+        <img src="{{movie.image}}" alt="{{movie.title}}">
     </div>
-    <form method="POST" action="{% url 'movies:comment_create' movie.id %}">
-        {% csrf_token %}
-        {% bootstrap_form comment_form %}
-        <input type="submit" value="Submit"/>
-    </form>
+
+    <div id=app>
+        <div class="row">
+            <img class="d-inline-flex" src="{{movie.image}}" alt="{{movie.title}}" style="width: 14rem; height: 20rem;">
+            <div class="text-white col-6 ml-3">
+                <span><h3 class="mt-3">{{movie.title}}</h3> <p>| {{movie.open_date}}</p></span>
+                {% for genre in movie.genre.all %}
+                    <p>{{genre.mtype}}</p>
+                {% endfor %}
+                <p>누적 관객수 : {{movie.audience}}명</p>
+            </div>
+            <p class="text-white mt-2">{{movie.content}}</p>
+        </div>
     
+        <!--영화 찜하기-->
+        {% if movie in user.pick_movie.all %}
+        {% else %}
+            <span data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn">찜하기</span>
+        {% endif %}
+    
+        <!--관리자 계정 영화 수정 및 삭제-->
+        {% if user.is_superuser %}
+            <a href="{% url 'movies:update' movie.id %}" class="btn btn-light">UPDATE</a>
+            <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light">DELETE</a>
+        {% endif %}
+    
+        <!-- 댓글 작성 -->
+        <div class="mt-3">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Comment" aria-label="Comment" aria-describedby="basic-addon2" v-model="newComment">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success" type="button" @click="createComment()">작성</button>
+                </div>
+            </div>
+        </div>
+
+        <div v-for="(comment, index) in comments">
+            <p class="text-white">[[comment.fields.user]]</p>
+            <h5 class="text-white">[[comment.fields.content]]</h5>
+        </div>
+    </div>
+    <input type="hidden" value="{{movie.id}}" id="movie_id_hidden">
     <script>
+        const MY_SERVER = "http://127.0.0.1:8000"
+        // const MY_SERVER = "http://endgame-jtj0525.c9users.io:8080"
+        const app = new Vue({
+            delimiters: ['[[', ']]'],
+            el: '#app',
+            data: {
+                scores: [],
+                comments: [],
+                newComment: '',
+                movieId: 0,
+            },
+            mounted: function(){
+                this.movieId = document.querySelector('#movie_id_hidden').value
+                axios.get(`${MY_SERVER}/movies/json/${this.movieId}`)
+                .then((r) => {
+                    const movieScores = JSON.parse(r.data.scores_json)
+                    this.scores = movieScores.map((s) => {
+                        return {...s}
+                    })
+                })
+                .catch((e) => {console.log(e)})
+
+                axios.get(`${MY_SERVER}/movies/json/${this.movieId}/comment`)
+                .then((r) => {
+                    const movieComments = JSON.parse(r.data.comment_json)
+                    this.comments = movieComments.map((c) => {
+                        return {...c}
+                    })
+                })
+                .catch((e) => {console.log(e)})
+            },
+            methods: {
+                createComment: async function(){
+                    await axios.get(`${MY_SERVER}/movies/${this.movieId}/comment`, {params: {comment: this.newComment}})
+                    .then(
+                    )
+                    .catch((e) => {console.log(e)})
+                    
+                    await axios.get(`${MY_SERVER}/movies/json/${this.movieId}/comment`)
+                    .then((r) => {
+                        const movieComments = JSON.parse(r.data.comment_json)
+                        this.comments = movieComments.map((c) => {
+                            return {...c}
+                        })
+                    })
+                    .catch((e) => {console.log(e)})
+                    this.newComment = ''
+                },
+
+            },
+            wathch: {
+
+            },
+        })
+    </script>
+    
+    <!-- <div id="player"></div> -->
+    <!-- <script>
         /* IFRAME */
         // 2. This code loads the IFrame Player API code asynchronously.
         var tag = document.createElement('script');
@@ -100,8 +181,6 @@
         
         /* pickBtn */
         let pickBtnList = document.getElementsByClassName('pick_btn')
-        for(const pickBtn of pickBtnList){
-            
-        }
-    </script>
+    </script> -->
+
 {% endblock %}
