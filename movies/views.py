@@ -7,42 +7,36 @@ from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm
 from .models import Genre, Movie, MovieRank, People, Comment, Score
 from .crawling import movie_data
 import json
+from ast import literal_eval
 
 # Create your views here.
-@login_required
+# @login_required
 def list(request):
     if request.user.is_authenticated:
         return render(request, 'movies/list.html')
     #else일때
     return render(request, 'movies/main.html')
-        
-@login_required
-def json_list(request):
-    movies = Movie.objects.all()
-    scores = Score.objects.filter(user=request.user).all()
-    movies_json = serializers.serialize('json', movies)
-    scores_json = serializers.serialize('json', scores)
-    # return JsonResponse(json.dumps(movies_json, ensure_ascii=False), safe=False)
-    return JsonResponse({'movies_json':movies_json, 'scores_json':scores_json, 'user_id':request.user.id}, content_type='application/json; charset=utf-8')
 
 @login_required
 def detail(request, movie_id):
     if request.method == 'GET':
         movie = get_object_or_404(Movie, pk=movie_id)
-        comment_form = CommentForm()
-    return render(request, 'movies/detail.html', {'movie':movie, 'comment_form':comment_form})
+    return render(request, 'movies/detail.html', {'movie':movie})
 
 @login_required
 def comment_create(request, movie_id):
-    if request.method == 'POST':
+    is_res = False
+    if request.method == 'GET':
         movie = get_object_or_404(Movie, pk=movie_id)
-        comment_form = CommentForm(request.POST)
+        content = request.GET.get('comment')
+        comment_form = CommentForm({'content':content})
         if comment_form.is_valid():
             comment = comment_form.save(commit=False)
             comment.movie = movie
             comment.user = request.user
             comment.save()
-            return redirect('movies:detail', movie_id)
+            is_res = True
+    return JsonResponse({'is_res':is_res})
 
 @login_required
 def comment_update(request, movie_id, comment_id):
@@ -73,20 +67,18 @@ def comment_delete(request, movie_id, comment_id):
 def score_create(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
     is_res = False
+    score_id = 0
     if request.method == "GET":
-        user = request.user
-        value = int(request.GET.get('value'))
-        score = Score.objects.create(movie=movie, user=user, value=value)
-        is_res = True
-        # score_form = ScoreForm(request.POST)
-        # if score_form.is_valid():
-        #     score = score_form.save(commit=False)
-        #     score.movie = movie
-        #     score.user = request.user
-        #     score.save()
-        #     is_res = True
-        #     score_id = score.id
-    return JsonResponse({'is_res':is_res, 'score_id':score.id})
+        value = request.GET.get('value')
+        score_form = ScoreForm({'value':value})
+        if score_form.is_valid():
+            score = score_form.save(commit=False)
+            score.movie = movie
+            score.user = request.user
+            score.save()
+            is_res = True
+            score_id = score.id
+    return JsonResponse({'is_res':is_res, 'score_id':score_id})
 
 # @login_required
 # def score_update(request, movie_id, score_id):
@@ -112,6 +104,37 @@ def score_delete(request, movie_id, score_id):
         score.delete()
         is_res = True
         return JsonResponse({'is_res':is_res})
+
+# json
+@login_required
+def json_list(request):
+    movies = Movie.objects.all()
+    scores = Score.objects.filter(user=request.user).all()
+    movies_json = serializers.serialize('json', movies)
+    scores_json = serializers.serialize('json', scores)
+    return JsonResponse({'movies_json':movies_json, 'scores_json':scores_json}, content_type='application/json; charset=utf-8')
+
+@login_required
+def json_detail(request, movie_id):
+    if request.method == 'GET':
+        movie = get_object_or_404(Movie, pk=movie_id)
+        scores = Score.objects.filter(movie=movie).all()
+        scores_json = serializers.serialize('json', scores)
+    return JsonResponse({'scores_json':scores_json}, content_type='application/json; charset=utf-8')
+
+@login_required
+def json_comment(request, movie_id):
+    if request.method == 'GET':
+        movie = get_object_or_404(Movie, pk=movie_id)
+        comment = Comment.objects.filter(movie=movie).all()
+        comment_json = serializers.serialize('json', comment)
+        comment_json = literal_eval(comment_json)
+        User = get_user_model()
+        for n in comment_json:
+            user = get_object_or_404(User, pk=n['fields']['user'])
+            n['fields']['user'] = user.username
+        comment_json = json.dumps(comment_json)
+    return JsonResponse({'comment_json':comment_json}, content_type='application/json; charset=utf-8')
 
 """Admin"""
 @login_required

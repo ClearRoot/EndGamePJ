@@ -36,11 +36,13 @@
             <div class="card-wrapper mx-auto mt-5" v-for="(movie, index) in movies">
                 <div class="card bg-dark text-white" @mouseover="movie.togle = true" @mouseleave="movie.togle = false">
                     <img v-bind:src="movie.fields.image" class="card-img" v-bind:alt="movie.fields.title" style="width: 13rem; height: 20rem; cursor: pointer;">
-                    <div v-if="movie.togle" class="card-img-overlay text-center" style="background-color: rgba(10, 10, 10, .6)">
-                        <h5 class="card-title ">[[movie.fields.title]]</h5>
+                    <div v-if="movie.togle" class="card-img-overlay text-center " style="background-color: rgba(10, 10, 10, .6)">
+                        <h5 class="card-title mt-5">[[movie.fields.title]]</h5>
                         <p class="card-text" v-text="movie.fields.open_date.substring(0,4)"></p>
-                        <span v-if="!movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.tempScore > n-1 ? {checked:true}  : '']" @mouseover="movie.tempScore = n" @mouseout="movie.tempScore = 0" @click="scoreCreate(movie.pk, n)"></span>
-                        <span v-if="movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.score > n-1 ? {checked:true}  : '']" @click="scoreDelete(movie.pk, movie.scoreId)"></span>
+                        <span style="cursor: pointer;" v-if="!movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.tempScore > n-1 ? {checked:true}  : '']" @mouseover="movie.tempScore = n" @mouseout="movie.tempScore = 0" @click="scoreCreate(movie.pk, n)"></span>
+                        <span style="cursor: pointer;" v-if="movie.score" v-for="n in 5" class="fa fa-star" v-bind:class="[movie.score > n-1 ? {checked:true}  : '']" @click="scoreDelete(movie.pk, movie.scoreId)"></span>
+                        <hr>
+                        <a :href="'/movies/' + movie.pk" class="btn btn-sm btn-info">상세정보</a>
                     </div>
                 </div>
             </div>
@@ -48,14 +50,13 @@
     </div>
 
     <script>
-        // const MY_SERVER = "http://127.0.0.1:8000"
-        const MY_SERVER = "http://endgame-jtj0525.c9users.io:8080"
+        const MY_SERVER = "http://127.0.0.1:8000"
+        // const MY_SERVER = "http://endgame-jtj0525.c9users.io:8080"
         const app = new Vue({
             delimiters: ['[[', ']]'],
             el: '#app',
             data: {
                 movies: [],
-                userId: 0,
                 viewMovieIndex: 0,
             },
             mounted: function(){
@@ -65,7 +66,6 @@
                     // console.log(r.data.scores_json)
                     const moviesData = JSON.parse(r.data.movies_json)
                     const scoreData = JSON.parse(r.data.scores_json)
-                    this.userId = r.data.user_id
                     // console.log(scoreData)
                     this.movies = moviesData.map((m) => {
                         return {...m, togle: false, score: 0, scoreId: 0, tempScore: 0}
