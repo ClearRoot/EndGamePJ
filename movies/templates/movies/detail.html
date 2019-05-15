@@ -38,29 +38,37 @@
     </div>
 
     <div id=app>
-        <div class="row">
-            <img class="d-inline-flex" src="{{movie.image}}" alt="{{movie.title}}" style="width: 14rem; height: 20rem;">
-            <div class="text-white col-6 ml-3">
-                <span><h3 class="mt-3">{{movie.title}}</h3> <p>| {{movie.open_date}}</p></span>
+        <div class="row text-white">
+            <h1 class="mx-3 mt-3 w-100">{{movie.title}}</h1>
+            <div class="w-100 mb-3 ml-3">
+                <span style="font-size: large;">| {{movie.open_date}}</span>
                 {% for genre in movie.genre.all %}
-                    <p>{{genre.mtype}}</p>
+                    <span style="font-size: large;">/ {{genre.mtype}}</span>
                 {% endfor %}
-                <p>누적 관객수 : {{movie.audience}}명</p>
+                {% if user.is_superuser %}
+                <div class="d-inline-flex">
+                    <!--관리자 계정 영화 수정 및 삭제-->
+                    <a href="{% url 'movies:update' movie.id %}" class="btn btn-light btn-sm m-1">UPDATE</a>
+                    <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light btn-sm m-1">DELETE</a>
+                    <!--영화 찜하기-->
+                    {% if movie in user.pick_movie.all %}
+                    <span data-id="{{movie.id}}" class="btn btn-danger pick_btn btn-sm m-1">찜취소</span>
+                    {% else %}
+                    <span data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn btn-sm m-1">찜하기</span>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
-            <p class="text-white mt-2">{{movie.content}}</p>
         </div>
-    
-        <!--영화 찜하기-->
-        {% if movie in user.pick_movie.all %}
-        {% else %}
-            <span data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn">찜하기</span>
-        {% endif %}
-    
-        <!--관리자 계정 영화 수정 및 삭제-->
-        {% if user.is_superuser %}
-            <a href="{% url 'movies:update' movie.id %}" class="btn btn-light">UPDATE</a>
-            <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light">DELETE</a>
-        {% endif %}
+        <div class="row text-white">
+            <div class="d-flex align-items-center offset-2 col-8 offset-sm-0 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                <img src="{{movie.back_image}}" alt="{{movie.title}}" style="width: 100%;">
+            </div>
+            <div class="col-12 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                <h4>| 내용</h4>
+                <p>{{movie.content}}</p>
+            </div>
+        </div>
     
         <!-- 댓글 작성 -->
         <div class="mt-3">
@@ -72,9 +80,10 @@
             </div>
         </div>
 
-        <div v-for="(comment, index) in comments">
-            <p class="text-white">[[comment.fields.user]]</p>
-            <h5 class="text-white">[[comment.fields.content]]</h5>
+        <div clas="row" v-for="(comment, index) in comments">
+            <p class="d-inline-flex"><a class="text-white font-weight-bold" :href="'/accounts/' + comment.fields.user">@[[comment.fields.username]]</a></p>
+            <p class="d-inline-flex text-white"> : [[comment.fields.content]]</p>
+            <b v-if="comment.fields.username === username" @click="delComment(comment, index)" style="color:red; font-weight:bold; cursor:pointer;">X</b>
         </div>
     </div>
     <input type="hidden" value="{{movie.id}}" id="movie_id_hidden">
@@ -85,6 +94,7 @@
             delimiters: ['[[', ']]'],
             el: '#app',
             data: {
+                username: '',
                 scores: [],
                 comments: [],
                 newComment: '',
@@ -95,6 +105,7 @@
                 axios.get(`${MY_SERVER}/movies/json/${this.movieId}`)
                 .then((r) => {
                     const movieScores = JSON.parse(r.data.scores_json)
+                    this.username = r.data.user_name
                     this.scores = movieScores.map((s) => {
                         return {...s}
                     })
@@ -128,6 +139,14 @@
                     this.newComment = ''
                 },
 
+                delComment: function(comment, index){
+                    console.log(index)
+                    axios.get(`${MY_SERVER}/movies/${this.movieId}/${comment.pk}/comment_delete`)
+                    .then(
+                        this.comments.splice(index, 1)
+                    )
+                    .catch((e) => {console.log(e)})
+                },
             },
             wathch: {
 

@@ -33,7 +33,7 @@
 
     <div id="app">
         <div class="row movie-list">
-            <div class="card-wrapper mx-auto mt-5" v-for="(movie, index) in movies">
+            <div class="card-wrapper mx-auto mt-5" v-for="(movie, index) in orderbyMovie">
                 <div class="card bg-dark text-white" @mouseover="movie.togle = true" @mouseleave="movie.togle = false">
                     <img v-bind:src="movie.fields.image" class="card-img" v-bind:alt="movie.fields.title" style="width: 13rem; height: 20rem; cursor: pointer;">
                     <div v-if="movie.togle" class="card-img-overlay text-center " style="background-color: rgba(10, 10, 10, .6)">
@@ -48,7 +48,6 @@
             </div>
         </div>
     </div>
-
     <script>
         const MY_SERVER = "http://127.0.0.1:8000"
         // const MY_SERVER = "http://endgame-jtj0525.c9users.io:8080"
@@ -68,7 +67,7 @@
                     const scoreData = JSON.parse(r.data.scores_json)
                     // console.log(scoreData)
                     this.movies = moviesData.map((m) => {
-                        return {...m, togle: false, score: 0, scoreId: 0, tempScore: 0}
+                        return {...m, togle: false, score: 0, scoreId: 0, tempScore: 0, openY: parseInt(m.fields.open_date)}
                     })
                     // console.log(this.movies)
                     this.movies = this.movies.reduce((map, movie)=>{
@@ -86,6 +85,11 @@
                     });
                 })
                 .catch((e) => {console.log(e)})
+            },
+            computed: {
+                orderbyMovie(){
+                    return _.orderBy(this.movies, 'openY', 'desc')
+                }
             },
             methods: {
                 scoreDelete: function(movie_id, score_id){

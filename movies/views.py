@@ -119,7 +119,8 @@ def json_detail(request, movie_id):
         movie = get_object_or_404(Movie, pk=movie_id)
         scores = Score.objects.filter(movie=movie).all()
         scores_json = serializers.serialize('json', scores)
-    return JsonResponse({'scores_json':scores_json}, content_type='application/json; charset=utf-8')
+        user_name = request.user.username
+    return JsonResponse({'scores_json':scores_json, 'user_name':user_name}, content_type='application/json; charset=utf-8')
 
 @login_required
 def json_comment(request, movie_id):
@@ -131,7 +132,7 @@ def json_comment(request, movie_id):
         User = get_user_model()
         for n in comment_json:
             user = get_object_or_404(User, pk=n['fields']['user'])
-            n['fields']['user'] = user.username
+            n['fields']['username'] = user.username
         comment_json = json.dumps(comment_json)
     return JsonResponse({'comment_json':comment_json}, content_type='application/json; charset=utf-8')
 
