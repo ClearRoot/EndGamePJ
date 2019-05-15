@@ -5,11 +5,10 @@ from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm
 from .models import Genre, Movie, MovieRank, People, Comment, Score
-from .crawling import movie_data
+from .crawling import movie_data, themovie
 import json
 from ast import literal_eval
 
-# Create your views here.
 # @login_required
 def list(request):
     if request.user.is_authenticated:
@@ -80,22 +79,6 @@ def score_create(request, movie_id):
             score_id = score.id
     return JsonResponse({'is_res':is_res, 'score_id':score_id})
 
-# @login_required
-# def score_update(request, movie_id, score_id):
-#     movie = get_object_or_404(Movie, pk=movie_id)
-#     score = get_object_or_404(Score, pk=score_id)
-#     if request.user == score.user:
-#         if request.method == "POST":
-#             score_form = ScoreForm(request.POST, instance=score)
-#             if score_form.is_valid():
-#                 score = score_form.save(commit=False)
-#                 score.save()
-#         else:
-#             score_form = ScoreForm(instance=comment)
-#             return render(request, 'movies/detail.html', {'movie':movie, 'score_form':score_form})
-#     #잘못된 접근이므로 Error처리해주는게 옳음
-#     return redirect('movies:detail', movie_id)
-
 @login_required
 def score_delete(request, movie_id, score_id):
     score = get_object_or_404(Score, pk=score_id)
@@ -105,7 +88,7 @@ def score_delete(request, movie_id, score_id):
         is_res = True
         return JsonResponse({'is_res':is_res})
 
-# json
+"""json"""
 @login_required
 def json_list(request):
     movies = Movie.objects.all()
@@ -141,7 +124,8 @@ def json_comment(request, movie_id):
 def crawling(request):
     if request.user.is_superuser:
         admin = request.user
-        movie_data()
+        # movie_data()
+        themovie()
         return render(request, 'movies/crawling.html', {'admin':admin})
     return redirect('movies:list')
 
