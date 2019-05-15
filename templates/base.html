@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
 </head>
 <body>
-    <nav class="navbar sticky-top navbar-expand-lg navbar-dark px-5">
+    <nav class="navbar sticky-top navbar-expand-lg navbar-dark px-5" style="background-color: rgba(0, 0, 0, .6)">
         <a href="{% url 'movies:list' %}" class="navbar-brand"><i class="fas fa-cubes"></i>&nbsp;EndGame</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -23,10 +23,6 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
-
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">New</a>
-                    </li>
                     <li class="nav-item">
                         <a href="{% url 'accounts:user_page' user.id %}" class="nav-link">MyPage</a>
 
