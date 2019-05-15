@@ -93,9 +93,11 @@ def score_delete(request, movie_id, score_id):
 def json_list(request):
     movies = Movie.objects.all()
     scores = Score.objects.filter(user=request.user).all()
+    genres = Genre.objects.all()
     movies_json = serializers.serialize('json', movies)
     scores_json = serializers.serialize('json', scores)
-    return JsonResponse({'movies_json':movies_json, 'scores_json':scores_json}, content_type='application/json; charset=utf-8')
+    genres_json = serializers.serialize('json', genres)
+    return JsonResponse({'movies_json':movies_json, 'scores_json':scores_json, 'genres_json':genres_json}, content_type='application/json; charset=utf-8')
 
 @login_required
 def json_detail(request, movie_id):
