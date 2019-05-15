@@ -32,9 +32,18 @@
 </style>
 
     <div id="app">
+        <label for="genreSelect" class="text-white">장르 </label>
+        <select v-model="genreStatus" id="genreSelect">
+            <option value="all">전체보기</option>
+            <option v-for="genre in genres" v-bind:value="genre.pk">[[genre.fields.mtype]]</option>
+        </select>
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="customSwitch1" v-model="starMovie">
+            <label class="custom-control-label text-white" for="customSwitch1">평가한 영화 숨기기</label>
+        </div>
         <div class="row movie-list">
-            <div class="card-wrapper mx-auto mt-5" v-for="(movie, index) in orderbyMovie">
-                <div class="card bg-dark text-white" @mouseover="movie.togle = true" @mouseleave="movie.togle = false">
+            <div class="card-wrapper mx-auto mt-5" v-for="(movie, index) in orderbyMovie" v-if="genreStatus === 'all' || movie.fields.genre.includes(genreStatus)">
+                <div class="card bg-dark text-white" @mouseover="movie.togle = true" @mouseleave="movie.togle = false" v-if="!starMovie || movie.score === 0">
                     <img v-bind:src="movie.fields.image" class="card-img" v-bind:alt="movie.fields.title" style="width: 13rem; height: 20rem; cursor: pointer;">
                     <div v-if="movie.togle" class="card-img-overlay text-center " style="background-color: rgba(10, 10, 10, .6)">
                         <h5 class="card-title mt-5">[[movie.fields.title]]</h5>
@@ -56,33 +65,35 @@
             el: '#app',
             data: {
                 movies: [],
+                genres: [],
+                genreStatus: 'all',
+                starMovie: false,
                 viewMovieIndex: 0,
             },
             mounted: function(){
                 axios.get(`${MY_SERVER}/movies/json/list`)
                 .then((r) => {
-                    // console.log(r.data.movies_json)
-                    // console.log(r.data.scores_json)
                     const moviesData = JSON.parse(r.data.movies_json)
                     const scoreData = JSON.parse(r.data.scores_json)
-                    // console.log(scoreData)
+                    const genresData = JSON.parse(r.data.genres_json)
+
                     this.movies = moviesData.map((m) => {
                         return {...m, togle: false, score: 0, scoreId: 0, tempScore: 0, openY: parseInt(m.fields.open_date)}
                     })
-                    // console.log(this.movies)
                     this.movies = this.movies.reduce((map, movie)=>{
                         map[movie.pk] = movie;
                         return map;
                     }, {})
-                    // console.log(this.movies)
                     scoreData.forEach(score => {
                         const movie_id = score.fields.movie
                         const score_value = score.fields.value
                         const score_id = score.pk
                         this.movies[`${movie_id}`].score = score_value
                         this.movies[`${movie_id}`].scoreId = score_id
-                        // console.log(this.movies[`${movie_id}`])
                     });
+                    this.genres = genresData.map((g) => {
+                        return {...g}
+                    })
                 })
                 .catch((e) => {console.log(e)})
             },
