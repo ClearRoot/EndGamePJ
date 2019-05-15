@@ -5,11 +5,12 @@ from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm
 from .models import Genre, Movie, MovieRank, People, Comment, Score
-from .crawling import movie_data
+from .crawling import movie_data, themovie
 import json
+from django.core.paginator import Paginator
+
 
 # Create your views here.
-@login_required
 def list(request):
     if request.user.is_authenticated:
         return render(request, 'movies/list.html')
@@ -118,7 +119,8 @@ def score_delete(request, movie_id, score_id):
 def crawling(request):
     if request.user.is_superuser:
         admin = request.user
-        movie_data()
+        # movie_data()
+        themovie()
         return render(request, 'movies/crawling.html', {'admin':admin})
     return redirect('movies:list')
 
