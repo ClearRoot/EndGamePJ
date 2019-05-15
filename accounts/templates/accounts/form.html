@@ -70,6 +70,26 @@
                 </form>
                 <br>
                 <a class="text-white" href="{% provider_login_url 'google' method='oauth2' %}">Google</a>
+            {% elif request.resolver_match.url_name == 'edit_profile' %}
+                <h1 class="my-5 ml-2 text-white">| 정보수정</h1>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% bootstrap_field form.email label_class='text-white' %}
+                    {% bootstrap_label '자기소개' label_class='text-white' label_for='id_introduce' %}
+                    {% bootstrap_field form.introduce show_label=False placeholder='자기소개' %}
+                    {% bootstrap_label '프로필사진' label_class='text-white' label_for='id_profile_image' %}
+                    {% bootstrap_field form.profile_image field_class='text-white' show_label=False placeholder='프로필사진' %}
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-dark">수정하기</button>
+                    </div>
+                </form>
             {% endif %}
         </div>
     </div>
