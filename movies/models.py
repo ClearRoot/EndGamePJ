@@ -6,23 +6,26 @@ from imagekit.processors import ResizeToFill
 
 # Create your models here.
 class Genre(models.Model):
+    id = models.IntegerField(primary_key=True)
     mtype = models.CharField(max_length=30)
     
 class Movie(models.Model):
+    id = models.IntegerField(primary_key=True)
     genre = models.ManyToManyField(Genre, related_name='movies', blank=True)
     title = models.CharField(max_length=150)
     content = models.TextField()
-    open_date = models.CharField(max_length=10)
-    audience = models.IntegerField(null=True)
     image = models.TextField()
-    grade = models.CharField(max_length=30)
-    nations = models.CharField(max_length=30)
-    show_time = models.IntegerField()
+    back_image = models.TextField()
+    open_date = models.CharField(max_length=4, blank=True)
+    def __str__(self):
+        return self.title
     
 class People(models.Model):
     movie = models.ManyToManyField(Movie, related_name='peoples', blank=True)
-    director = models.CharField(max_length=50, blank=True)
+    people_key = models.IntegerField()
     actor = models.CharField(max_length=150, blank=True)
+    director = models.CharField(max_length=50, blank=True)
+    image = models.TextField(null=True)
     
 class MovieRank(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
@@ -47,3 +50,11 @@ class Score(models.Model):
         )
     )
     create_at = models.DateTimeField(auto_now_add=True)
+    
+class MovieVideo(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    key = models.TextField()
+    name = models.TextField()
+    site = models.TextField()
+    size = models.TextField()
+    vtype = models.TextField()

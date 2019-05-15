@@ -47,9 +47,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.instagram',
-    'allauth.socialaccount.providers.naver',
     'corsheaders',
 ]
 
@@ -133,7 +130,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -150,7 +146,6 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = "movies:list"
 
 CORS_ORIGIN_WHITELIST = [
-    "http://endgame-jtj0525.c9users.io:8080",
     "http://localhost:8000",
     "http://localhost:8080",
     ]

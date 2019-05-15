@@ -1,4 +1,5 @@
-from .models import Genre, Movie, MovieRank, People
+from django.shortcuts import get_object_or_404
+from .models import Genre, Movie, MovieRank, People, MovieVideo
 from bs4 import BeautifulSoup
 import requests
 import datetime
@@ -103,3 +104,120 @@ def movie_data():
             
         else:
             print("접근실패")
+            
+def themovie():
+    """json"""
+    # JSON_URL = f'https://api.themoviedb.org/3/movie/{movie_key}?api_key={API_KEY}&callback=json&language={language_list[0]}'
+    language_list = ['ko-KR', 'en-US'] #0:한국어, 1:영어
+    size_list = ['original', 'w500']
+    API_KEY = os.getenv('API_KEY')
+    URL = 'https://api.themoviedb.org/3/'
+    
+    """GENRE"""
+    genre_url = f'{URL}genre/movie/list?api_key={API_KEY}&language={language_list[0]}'
+    genre_res = requests.get(genre_url)
+    if genre_res.status_code == 200:
+        genre_json = genre_res.json()
+        genres = genre_json.get('genres')
+        genres_len = len(genres)
+        for i in range(len(genres)):
+            genre_id = genres[i].get('id')
+            mtype = genres[i].get('name')
+            Genre.objects.get_or_create(id=genre_id, mtype=mtype)
+    
+    print("장르 완성")
+    
+    # total_page = f'https://api.themoviedb.org/3/discover/movie?api_key={API_KEY}&language=ko-KR&sort_by=popularity.desc'
+    """MOVIE"""
+    POSTER_URL = f'https://image.tmdb.org/t/p/'
+    for page in range(1,11):#page는 1부터 시작함
+        discover_url = f'{URL}discover/movie?api_key={API_KEY}&language={language_list[0]}&sort_by=popularity.desc&page={page}'
+        discover_res = requests.get(discover_url)
+        if discover_res.status_code == 200:
+            discover_json = discover_res.json()
+            results = discover_json.get('results')
+            
+            for i in range(len(results)): #len(results)
+                movie_key = results[i].get('id')
+                print(movie_key)
+                title = results[i].get('title')
+                poster_path = results[i].get('poster_path')
+                image = f'{POSTER_URL}{size_list[1]}{poster_path}'
+                backdrop_path = results[i].get('backdrop_path')
+                back_image = f'{POSTER_URL}{size_list[0]}{backdrop_path}'
+                content = results[i].get('overview')
+                release_date = results[i].get('release_date')
+                if release_date:
+                    open_date = release_date[0:4]
+                else:
+                    open_date = ""
+                genre_ids = results[i].get('genre_ids')
+                
+                movie = Movie.objects.get_or_create(id=movie_key, title=title, content=content, image=image, back_image=back_image, open_date=open_date)
+                print(movie[0])
+                if movie[1]:
+                    for j in range(len(genre_ids)):
+                        genre = get_object_or_404(Genre, id=genre_ids[j])
+                        movie[0].genre.add(genre)
+                
+                # """videos_url"""
+                # videos_url = f'{URL}movie/{movie_key}/videos?api_key={API_KEY}&language={language_list[0]}'
+                # videos_res = requests.get(videos_url)
+                # if videos_res.status_code == 200:
+                #     videos_json = videos_res.json()
+                #     results = videos_json.get('results')
+                #     if len(results):
+                #         for v in range(len(results)):
+                #             key = results[v].get('key')
+                #             name = results[v].get('name')
+                #             site = results[v].get('site')
+                #             size = results[v].get('size')
+                #             vtype = results[v].get('type')
+                #             MovieVideo.objects.get_or_create(movie=movie[0], key=key, name=name, site=site, size=size, vtype=vtype)
+                # # else: #우리나라 언어가 아닐 때는 보여주지 않는 것으로.
+                # #     videos_url = f'{URL}movie/550/videos?api_key={API_KEY}&language={language_list[1]}'
+                # #     videos_res = requests.get(videos_url)
+                # #     if videos_res.status_code == 200:
+                # #         videos_json = videos_res.json()
+                # #         results = videos_json.get('results')
+                # #         if len(results):
+                # #             pass
+                
+    #             """credits_url"""
+                credits_url = f'{URL}movie/{movie_key}/credits?api_key={API_KEY}&language={language_list[0]}'
+                credits_res = requests.get(credits_url)
+                if credits_res.status_code == 200:
+                    credits_json = credits_res.json()
+                    cast = credits_json.get('cast')
+                    cast_len = len(cast) if len(cast) < 10 else 10
+                    for c in range(cast_len):
+                        people_key = cast[c].get('id')
+                        actor = cast[c].get('name')
+                        profile_path = cast[c].get('profile_path')
+                        image = f'{POSTER_URL}{size_list[1]}{profile_path}'
+                        people = People.objects.get_or_create(people_key=people_key, actor=actor)
+                        if people[1]:
+                            people[0].image = image
+                            people[0].save()
+                        people[0].movie.add(movie[0])
+                        
+                    crew = credits_json.get('crew')
+                    for c in range(len(crew)):
+                        if str(crew[c].get('job')) == 'Director':
+                            people_key = crew[c].get('id')
+                            director = crew[c].get('name')
+                            profile_path = crew[c].get('profile_path')
+                            image = f'{POSTER_URL}{size_list[1]}{profile_path}'
+                            people = People.objects.get_or_create(people_key=people_key, director=director)
+                            if people[1]:
+                                people[0].image = image
+                                people[0].save()
+                            people[0].movie.add(movie[0])
+                        if c > 15:#15안에는 있겠지라는 마음
+                            break
+    print("모두 완료!")
+    
+    # #영화추천
+    # #아래 두개는 page가 존재하니 조심
+    # recommend_url = f'{URL}movie/{movie_key}/recommendations?api_key={API_KEY}&language={language_list[0]}&page={page}'
+    # similar_url = f'{URL}movie/{movie_key}/similar?api_key={API_KEY}&language={language_list[0]}&page={page}'
