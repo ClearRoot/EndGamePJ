@@ -69,6 +69,7 @@
                 <p>{{movie.content}}</p>
             </div>
         </div>
+
     
         <!-- 댓글 작성 -->
         <div class="mt-3">
@@ -84,6 +85,7 @@
             <p class="d-inline-flex"><a class="text-white font-weight-bold" :href="'/accounts/' + comment.fields.user">@[[comment.fields.username]]</a></p>
             <p class="d-inline-flex text-white"> : [[comment.fields.content]]</p>
             <b v-if="comment.fields.username === username" @click="delComment(comment, index)" style="color:red; font-weight:bold; cursor:pointer;">X</b>
+
         </div>
     </div>
     <input type="hidden" value="{{movie.id}}" id="movie_id_hidden">
