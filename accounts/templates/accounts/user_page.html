@@ -94,7 +94,7 @@
         <div>
             {% if user_info.is_authenticated %}
                 {% if user_info.profile_image %}
-                    <img class="rounded" src={{user_info.profile}} alt="profile image" width="150">  
+                    <img class="rounded" src={{user_info.profile_image.url}} alt="profile image" width="150">  
                 {% else %}
                     <img class="rounded" src={{user_info.email|gravatar_url:150}} alt="profile image" width="150">  
                 {% endif %}
