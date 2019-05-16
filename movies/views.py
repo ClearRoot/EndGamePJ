@@ -3,9 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
-from .forms import MovieForm, PeopleForm, MovieRankForm, CommentForm, ScoreForm
-from .models import Genre, Movie, MovieRank, People, Comment, Score
-from .crawling import movie_data, themovie
+from .forms import MovieForm, PeopleForm, CommentForm, ScoreForm
+from .models import Genre, Movie, People, Comment, Score, MovieVideo
+from .crawling import themovie
 import json
 from ast import literal_eval
 import os
@@ -20,7 +20,11 @@ def list(request):
 def detail(request, movie_id):
     if request.method == 'GET':
         movie = get_object_or_404(Movie, pk=movie_id)
-    return render(request, 'movies/detail.html', {'movie':movie})
+        try:
+            movie_video = MovieVideo.objects.get(movie=movie)
+        except MovieVideo.DoesNotExist:
+            movie_video = ""
+    return render(request, 'movies/detail.html', {'movie':movie, 'movie_video':movie_video})
 
 @login_required
 def comment_create(request, movie_id):
@@ -130,7 +134,6 @@ def json_comment(request, movie_id):
 def crawling(request):
     if request.user.is_superuser:
         admin = request.user
-        # movie_data()
         themovie()
         return render(request, 'movies/crawling.html', {'admin':admin})
     return redirect('movies:list')

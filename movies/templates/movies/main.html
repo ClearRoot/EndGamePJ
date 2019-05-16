@@ -6,37 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>EndGame</title>
+    <link rel="shortcut icon" href="{% static 'img/logo.png' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/css/main.css">
-    <!-- <style>
-        html, body{
-            height: 100%;
-            margin: 0px;
-        }
-        body {
-            background: linear-gradient(to right, rgba(7,7,7,.9), rgba(0,0,0,.5)), url('https://images.unsplash.com/photo-1485095329183-d0797cdc5676?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
-            -webkit-background-size: cover;
-            -moz-background-size: cover;
-            -o-background-size: cover;
-            background-size: cover;
-        }
-    </style> -->
 </head>
 <body>
-    <!-- <nav class="d-flex justify-content-between navbar sticky-top navbar-expand-lg navbar-dark px-5">
-        <a href="{% url 'movies:list' %}" class="navbar-brand"><i class="fas fa-cubes"></i>&nbsp;EndGame</a>
-        <a class="btn btn-outline-light btn-sm" href="{% url 'accounts:login' %}">시작하기</a>
-    </nav> -->
-    <!-- <div class="h-75 d-flex align-items-center">
-        <div class="w-100 flex-column">
-            <h1 class="text-white text-center">영화사이트 메인 페이지</h1>
-            <div class="w-100 d-flex justify-content-center">
-                <a class="btn btn-outline-light btn-lg" href="{% url 'accounts:login' %}">시작하기</a>
-            </div>
-        </div>
-    </div> -->
-    
     <div class="untitled">
         <div class="untitled__slides">
             {% for n in n|rjust:4 %}

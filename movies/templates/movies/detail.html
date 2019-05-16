@@ -52,14 +52,14 @@
                 <div class="d-inline-flex">
                     {% if user.is_superuser %}
                     <!--관리자 계정 영화 수정 및 삭제-->
-                    <a href="{% url 'movies:update' movie.id %}" class="btn btn-light btn-sm m-1">UPDATE</a>
+                    <a href="/admin/movies/movie/{{movie.id}}/change/" class="btn btn-light btn-sm m-1">UPDATE</a>
                     <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light btn-sm m-1">DELETE</a>
                     {% endif %}
                     <!--영화 찜하기-->
                     {% if movie in user.pick_movie.all %}
-                    <span data-id="{{movie.id}}" class="btn btn-danger pick_btn btn-sm m-1">찜취소</span>
+                    <button data-id="{{movie.id}}" class="btn btn-danger pick_btn btn-sm m-1">찜취소</button>
                     {% else %}
-                    <span data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn btn-sm m-1">찜하기</span>
+                    <button data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn btn-sm m-1">찜하기</button>
                     {% endif %}
                 </div>
             </div>
@@ -239,37 +239,55 @@
     </script>
     
     <script>
-        /* IFRAME */
-        // 2. This code loads the IFrame Player API code asynchronously.
+        /* pickBtn */
+        let pickBtnList = document.getElementsByClassName('pick_btn')
+            for(const pickBtn of pickBtnList){
+                pickBtn.addEventListener('click', e => {
+                    const pick_id = e.target.dataset.id
+                    axios.get(`/accounts/pickup/${pick_id}`)
+                    .then(function(res){
+                        if(res.data.is_pickup){
+                            e.target.classList.remove('btn-outline-danger')
+                            e.target.classList.add('btn-danger')
+                            e.target.innerHTML = "찜취소"
+                        }else{
+                            e.target.classList.remove('btn-danger')
+                            e.target.classList.add('btn-outline-danger')
+                            e.target.innerHTML = "찜하기"
+                        }
+                    })
+                    .catch(function(error){
+                        console.log(error)
+                })
+            })
+        }
+    </script>
+
+    {% if movie_video %}
+    <script>
         var tag = document.createElement('script');
       
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      
-        // 3. This function creates an <iframe> (and YouTube player)
-        //    after the API code downloads.
+
         var player;
         function onYouTubeIframeAPIReady() {
           player = new YT.Player('player', {
             height: '360',
             width: '640',
-            videoId: 'SUXWAEX2jlg',
+            videoId: '{{movie_video}}',
             events: {
-              'onReady': onPlayerReady,
-              'onStateChange': onPlayerStateChange
+            //   'onReady': onPlayerReady,
+            //   'onStateChange': onPlayerStateChange
             }
           });
         }
       
-        // 4. The API will call this function when the video player is ready.
         function onPlayerReady(event) {
           event.target.playVideo();
         }
       
-        // 5. The API calls this function when the player's state changes.
-        //    The function indicates that when playing a video (state=1),
-        //    the player should play for six seconds and then stop.
         var done = false;
         function onPlayerStateChange(event) {
           if (event.data == YT.PlayerState.PLAYING && !done) {
@@ -280,9 +298,7 @@
         function stopVideo() {
           player.stopVideo();
         }
-        
-        /* pickBtn */
-        let pickBtnList = document.getElementsByClassName('pick_btn')
     </script>
+    {% endif %}
 
 {% endblock %}

@@ -64,24 +64,6 @@ def edit_profile(request, user_id):
     return redirect('movies:list')
     
 @login_required
-def password_enter_form(request):
-    user = request.user
-    if request.method == 'POST':
-        pwd = request.POST.get('pwd')
-        if check_password(pwd, user.password):
-            # if request.POST.get('com') == 'leave':
-            #     return redirect('accounts:leaving_user', user.id)
-            # elif request.POST.get('com') == 'update':
-            #     return redirect('accounts:edit_profile', user.id)
-            # else:
-            #     #잘못된접근 에러처리
-            #     return redirect('movies:list')
-            return check_password(pwd, user.password)
-    else:
-        com = 'leaving_user'
-    return render(request, 'accounts/password_form.html', {'com':com})
-    
-@login_required
 def follow(request, user_id):
     User = get_user_model()
     me = request.user
@@ -100,13 +82,16 @@ def follow(request, user_id):
 @login_required
 def leaving_user(request, user_id):
     user = get_object_or_404(get_user_model(), pk=user_id)
-    if user == request.user:
-        user.delete()
+    if request.method == "POST":
+        pwd = request.POST.get('pwd')
+        if check_password(pwd, user.password) and user == request.user:
+            user.delete()
         return redirect('movies:list')
-    #에러처리해야하는 요소
-    return redirect('movies:list')
+    else:
+        pass
+    return render(request, 'accounts/password_form.html')
 
-@login_required        
+@login_required
 def pickup(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
     user = request.user
