@@ -31,6 +31,10 @@
             height: auto;
             filter: blur(3px);
         }
+
+        .checked {
+            color: orange;
+        }
     </style>
 
     <div class="movie-detail-bg">
@@ -65,6 +69,12 @@
                 <img src="{{movie.image}}" alt="{{movie.title}}" style="width: 100%;">
             </div>
             <div class="col-12 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                <div class="mb-2 font-weight-bolder" style="font-size: large;">
+                    <p>| 평균 평점 : <span class="fa fa-star checked"></span> [[aveScores]]</p>
+                    <span>| 나의 평점 :</span>
+                    <span style="cursor: pointer;" v-if="!myScoreValue" v-for="n in 5" class="fa fa-star" v-bind:class="[tempScore > n-1 ? {checked:true}  : '']" @mouseover="tempScore = n" @mouseout="tempScore = 0" @click="scoreCreate(movieId, n)"></span>
+                    <span style="cursor: pointer;" v-if="myScoreValue" v-for="n in 5" class="fa fa-star" v-bind:class="[myScoreValue > n-1 ? {checked:true}  : '']" @click="scoreDelete(movieId, myScoreId)"></span>
+                </div>
                 <h4>| 내용</h4>
                 <p>{{movie.content}}</p>
                 <h4 class="mb-3">| 포토</h4>
@@ -72,52 +82,81 @@
             </div>
         </div>
 
-    
-        <!-- 댓글 작성 -->
-        <div class="mt-3">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Comment" aria-label="Comment" aria-describedby="basic-addon2" v-model="newComment">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success" type="button" @click="createComment()">작성</button>
+
+        <div class="row mt-3">
+            <div id="player" class="col-12 col-md-6 col-lg-6 col-xl-6">
+            </div>
+            <div class="col-12 col-md-6 col-lg-6 col-xl-6">
+                <h3 class="text-white mb-4">| 한줄평</h3>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="한줄평" aria-label="한줄평" aria-describedby="basic-addon2" v-model="newComment">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success" type="button" @click="createComment()">작성</button>
+                    </div>
+                </div>
+                <div clas="row" v-for="(comment, index) in comments">
+                    <p class="d-inline-flex"><a class="text-white font-weight-bold" :href="'/accounts/' + comment.fields.user">@[[comment.fields.username]]</a></p>
+                    <p class="d-inline-flex text-white"> : [[comment.fields.content]]</p>
+                    <b v-if="comment.fields.username === username" @click="delComment(comment, index)" style="color:red; font-weight:bold; cursor:pointer;">X</b>
+                </div>
+            </div>
+        </div>
+        <h3 class="text-white mt-4">| 추천영화</h3>
+        <div class="row movie-list">
+            <div class="card-wrapper mx-auto mt-3" v-for="(movie, index) in recomMovies">
+                <div class="card bg-dark text-white">
+                    <img v-bind:src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="card-img" v-bind:alt="movie.title" style="width: 13rem; height: 20rem;">
                 </div>
             </div>
         </div>
 
-        <div clas="row" v-for="(comment, index) in comments">
-            <p class="d-inline-flex"><a class="text-white font-weight-bold" :href="'/accounts/' + comment.fields.user">@[[comment.fields.username]]</a></p>
-            <p class="d-inline-flex text-white"> : [[comment.fields.content]]</p>
-            <b v-if="comment.fields.username === username" @click="delComment(comment, index)" style="color:red; font-weight:bold; cursor:pointer;">X</b>
-
-        </div>
+        <div style="height: 100px;"></div>
     </div>
     <input type="hidden" value="{{movie.id}}" id="movie_id_hidden">
+
     <script>
-        // const MY_SERVER = "http://127.0.0.1:8000"
-        const MY_SERVER = "http://debugging-1-clearroot.c9users.io:8080"
-        // const MY_SERVER = "http://endgame-jtj0525.c9users.io:8080"
         const app = new Vue({
             delimiters: ['[[', ']]'],
             el: '#app',
             data: {
                 username: '',
+                userId: 0,
+                myScoreId: 0,
+                myScoreValue: 0,
+                tempScore: 0,
                 scores: [],
+                scoresList: [],
+                aveScores: '',
                 comments: [],
                 newComment: '',
                 movieId: 0,
+                recomMovies: [],
+                API_KEY: '',
             },
             mounted: function(){
                 this.movieId = document.querySelector('#movie_id_hidden').value
-                axios.get(`${MY_SERVER}/movies/json/${this.movieId}`)
+                axios.get(`/movies/json/${this.movieId}`)
                 .then((r) => {
                     const movieScores = JSON.parse(r.data.scores_json)
                     this.username = r.data.user_name
+                    this.userId = r.data.user_id
+                    this.API_KEY = r.data.API_KEY
                     this.scores = movieScores.map((s) => {
+                        this.scoresList.push(s.fields.value)
                         return {...s}
                     })
+                    const userScore = this.scores.filter(
+                        (score) => {return score.fields.user === this.userId}
+                    )
+                    if (userScore === true){
+                        this.myScoreId = userScore[0].pk
+                        this.myScoreValue = userScore[0].fields.value
+                    }
+                    this.aveScores = this.aveScore(this.scoresList)
                 })
                 .catch((e) => {console.log(e)})
 
-                axios.get(`${MY_SERVER}/movies/json/${this.movieId}/comment`)
+                axios.get(`/movies/json/${this.movieId}/comment`)
                 .then((r) => {
                     const movieComments = JSON.parse(r.data.comment_json)
                     this.comments = movieComments.map((c) => {
@@ -125,15 +164,24 @@
                     })
                 })
                 .catch((e) => {console.log(e)})
+
+                axios.get(`https://api.themoviedb.org/3/movie/${this.movieId}/recommendations?api_key=${API_KEY}&language=ko-KR&page=1`)
+                .then((r)=>{
+                    const recomData = r.data.results
+                    this.recomMovies = recomData.map((m) => {
+                        return {...m}
+                    })
+                })
+                .catch((e) => {console.log(e)})
             },
             methods: {
                 createComment: async function(){
-                    await axios.get(`${MY_SERVER}/movies/${this.movieId}/comment`, {params: {comment: this.newComment}})
+                    await axios.get(`/movies/${this.movieId}/comment`, {params: {comment: this.newComment}})
                     .then(
                     )
                     .catch((e) => {console.log(e)})
                     
-                    await axios.get(`${MY_SERVER}/movies/json/${this.movieId}/comment`)
+                    await axios.get(`/movies/json/${this.movieId}/comment`)
                     .then((r) => {
                         const movieComments = JSON.parse(r.data.comment_json)
                         this.comments = movieComments.map((c) => {
@@ -145,12 +193,43 @@
                 },
 
                 delComment: function(comment, index){
-                    console.log(index)
-                    axios.get(`${MY_SERVER}/movies/${this.movieId}/${comment.pk}/comment_delete`)
+                    axios.get(`/movies/${this.movieId}/${comment.pk}/comment_delete`)
                     .then(
                         this.comments.splice(index, 1)
                     )
                     .catch((e) => {console.log(e)})
+                },
+
+                scoreDelete: function(movie_id, score_id){
+                    axios.get(`/movies/${movie_id}/${score_id}/score_delete`)
+                    .then((r) => {
+                        this.scoresList.splice(this.scoresList.indexOf(this.myScoreValue), 1)
+                        this.aveScores = this.aveScore(this.scoresList)
+                        this.myScoreId = 0
+                        this.myScoreValue = 0
+                    })
+                    .catch((e) => {console.log(e)})
+                },
+                scoreCreate: function(movie_id, value){
+                    axios.get(`/movies/${movie_id}/score`, {params: {value: value}})
+                    .then((r) => {
+                        this.myScoreId = r.data.score_id
+                        this.myScoreValue = value
+                        this.scoresList.push(value)
+                        this.aveScores = this.aveScore(this.scoresList)
+                    })
+                    .catch((e) => {console.log(e)})
+                },
+                aveScore: function(scores){
+                    let sumValue = 0
+                    for (score of scores){
+                        sumValue += score
+                    }
+                    if (scores.length){
+                       return `${(sumValue/scores.length).toFixed(2)}점`
+                    }else {
+                       return "평점이 없습니다."
+                    }
                 },
             },
             wathch: {
@@ -159,8 +238,7 @@
         })
     </script>
     
-    <!-- <div id="player"></div> -->
-    <!-- <script>
+    <script>
         /* IFRAME */
         // 2. This code loads the IFrame Player API code asynchronously.
         var tag = document.createElement('script');
@@ -205,6 +283,6 @@
         
         /* pickBtn */
         let pickBtnList = document.getElementsByClassName('pick_btn')
-    </script> -->
+    </script>
 
 {% endblock %}
