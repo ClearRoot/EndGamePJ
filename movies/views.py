@@ -8,6 +8,7 @@ from .models import Genre, Movie, MovieRank, People, Comment, Score
 from .crawling import movie_data, themovie
 import json
 from ast import literal_eval
+import os
 
 def list(request):
     if request.user.is_authenticated:
@@ -107,7 +108,8 @@ def json_detail(request, movie_id):
         scores_json = serializers.serialize('json', scores)
         user_name = request.user.username
         user_id = request.user.id
-    return JsonResponse({'scores_json':scores_json, 'user_name':user_name, 'user_id':user_id}, content_type='application/json; charset=utf-8')
+        API_KEY = os.getenv('API_KEY')
+    return JsonResponse({'scores_json':scores_json, 'user_name':user_name, 'user_id':user_id, 'API_KEY':API_KEY}, content_type='application/json; charset=utf-8')
 
 @login_required
 def json_comment(request, movie_id):
