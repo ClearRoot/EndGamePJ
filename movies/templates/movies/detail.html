@@ -133,9 +133,9 @@
                 recomMovies: [],
                 API_KEY: '',
             },
-            mounted: function(){
+            mounted: async function(){
                 this.movieId = document.querySelector('#movie_id_hidden').value
-                axios.get(`/movies/json/${this.movieId}`)
+                await axios.get(`/movies/json/${this.movieId}`)
                 .then((r) => {
                     const movieScores = JSON.parse(r.data.scores_json)
                     this.username = r.data.user_name
@@ -156,7 +156,7 @@
                 })
                 .catch((e) => {console.log(e)})
 
-                axios.get(`/movies/json/${this.movieId}/comment`)
+                await axios.get(`/movies/json/${this.movieId}/comment`)
                 .then((r) => {
                     const movieComments = JSON.parse(r.data.comment_json)
                     this.comments = movieComments.map((c) => {
@@ -165,7 +165,7 @@
                 })
                 .catch((e) => {console.log(e)})
 
-                axios.get(`https://api.themoviedb.org/3/movie/${this.movieId}/recommendations?api_key=${API_KEY}&language=ko-KR&page=1`)
+                await axios.get(`https://api.themoviedb.org/3/movie/${this.movieId}/recommendations?api_key=${this.API_KEY}&language=ko-KR&page=1`)
                 .then((r)=>{
                     const recomData = r.data.results
                     this.recomMovies = recomData.map((m) => {
@@ -276,7 +276,7 @@
           player = new YT.Player('player', {
             height: '360',
             width: '640',
-            videoId: '{{movie_video}}',
+            videoId: '{{movie_video.key}}',
             events: {
             //   'onReady': onPlayerReady,
             //   'onStateChange': onPlayerStateChange
