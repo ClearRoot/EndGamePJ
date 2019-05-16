@@ -8,7 +8,7 @@ from movies.models import Movie
 # Create your models here.
 class User(AbstractUser):
     followings = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='followers', blank=True)
-    introduce = models.CharField(max_length=60, null=True)
+    introduce = models.CharField(max_length=60, blank=True)
     pick_movie = models.ManyToManyField(Movie, related_name='pick_user', blank=True)
     profile_image= ProcessedImageField(
         upload_to= 'accounts/images',
