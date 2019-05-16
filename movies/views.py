@@ -113,7 +113,6 @@ def json_detail(request, movie_id):
         user_name = request.user.username
         user_id = request.user.id
         API_KEY = os.getenv('API_KEY')
-        print(API_KEY)
     return JsonResponse({'scores_json':scores_json, 'user_name':user_name, 'user_id':user_id, 'API_KEY':API_KEY}, content_type='application/json; charset=utf-8')
 
 @login_required

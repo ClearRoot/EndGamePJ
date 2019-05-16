@@ -34,9 +34,8 @@
     <div id="app">
         <div class="d-flex flex-row align-items-center justify-content-around mt-3" style="background-color: rgba(200, 200, 200, .6)">
             <div class="pt-2 col-auto">
-                <label for="genreSelect" class="text-white">장르 </label>
-                <select v-model="genreStatus" id="genreSelect">
-                    <option value="all">전체보기</option>
+                <select v-model="genreStatus" class="browser-default custom-select mb-2" id="genreSelect">
+                    <option value="all">장르 전체보기</option>
                     <option v-for="genre in genres" v-bind:value="genre.pk">[[genre.fields.mtype]]</option>
                 </select>
             </div>
