@@ -61,9 +61,6 @@
         </div>
     </div>
     <script>
-        // const MY_SERVER = "http://127.0.0.1:8000"
-        const MY_SERVER = "http://debugging-1-clearroot.c9users.io:8080"
-        // const MY_SERVER = "http://endgame-jtj0525.c9users.io:8080"
         const app = new Vue({
             delimiters: ['[[', ']]'],
             el: '#app',
@@ -76,7 +73,7 @@
                 search: '',
             },
             mounted: function(){
-                axios.get(`${MY_SERVER}/movies/json/list`)
+                axios.get('/movies/json/list')
                 .then((r) => {
                     const moviesData = JSON.parse(r.data.movies_json)
                     const scoreData = JSON.parse(r.data.scores_json)
@@ -115,7 +112,7 @@
             },
             methods: {
                 scoreDelete: function(movie_id, score_id){
-                    axios.get(`${MY_SERVER}/movies/${movie_id}/${score_id}/score_delete`)
+                    axios.get(`/movies/${movie_id}/${score_id}/score_delete`)
                     .then((r) => {
                         this.movies[`${movie_id}`].score = 0
                         this.movies[`${movie_id}`].scoreId = 0
@@ -123,7 +120,7 @@
                     .catch((e) => {console.log(e)})
                 },
                 scoreCreate: function(movie_id, value){
-                    axios.get(`${MY_SERVER}/movies/${movie_id}/score`, {params: {value: value}})
+                    axios.get(`/movies/${movie_id}/score`, {params: {value: value}})
                     .then((r) => {
                         this.movies[`${movie_id}`].score = `${value}`
                         this.movies[`${movie_id}`].scoreId = r.data.score_id
