@@ -52,14 +52,14 @@
                 <div class="d-inline-flex">
                     {% if user.is_superuser %}
                     <!--관리자 계정 영화 수정 및 삭제-->
-                    <a href="/admin/movies/movie/{{movie.id}}/change/" class="btn btn-light btn-sm m-1">UPDATE</a>
-                    <a href="{% url 'movies:delete' movie.id %}" class="btn btn-light btn-sm m-1">DELETE</a>
+                    <a href="/admin/movies/movie/{{movie.id}}/change/" class="btn btn-info btn-sm m-1">UPDATE</a>
+                    <a href="{% url 'movies:delete' movie.id %}" class="btn btn-warning btn-sm m-1">DELETE</a>
                     {% endif %}
                     <!--영화 찜하기-->
                     {% if movie in user.pick_movie.all %}
-                    <button data-id="{{movie.id}}" class="btn btn-danger pick_btn btn-sm m-1">찜취소</button>
+                        <button data-id="{{movie.id}}" class="btn btn-danger pick_btn btn-sm m-1">찜취소</button>
                     {% else %}
-                    <button data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn btn-sm m-1">찜하기</button>
+                        <button data-id="{{movie.id}}" class="btn btn-outline-danger pick_btn btn-sm m-1">찜하기</button>
                     {% endif %}
                 </div>
             </div>
@@ -105,7 +105,7 @@
         <div class="row movie-list">
             <div class="card-wrapper mx-auto mt-3" v-for="(movie, index) in recomMovies">
                 <div class="card bg-dark text-white">
-                    <img v-bind:src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="card-img" v-bind:alt="movie.title" style="width: 13rem; height: 20rem;">
+                    <a v-bind:href="'https://www.google.com/search?q=영화+' + movie.title"><img v-bind:src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="card-img" v-bind:alt="movie.title" style="width: 13rem; height: 20rem;"></a>
                 </div>
             </div>
         </div>
@@ -133,9 +133,9 @@
                 recomMovies: [],
                 API_KEY: '',
             },
-            mounted: function(){
+            mounted: async function(){
                 this.movieId = document.querySelector('#movie_id_hidden').value
-                axios.get(`/movies/json/${this.movieId}`)
+                await axios.get(`/movies/json/${this.movieId}`)
                 .then((r) => {
                     const movieScores = JSON.parse(r.data.scores_json)
                     this.username = r.data.user_name
@@ -156,7 +156,7 @@
                 })
                 .catch((e) => {console.log(e)})
 
-                axios.get(`/movies/json/${this.movieId}/comment`)
+                await axios.get(`/movies/json/${this.movieId}/comment`)
                 .then((r) => {
                     const movieComments = JSON.parse(r.data.comment_json)
                     this.comments = movieComments.map((c) => {
@@ -165,7 +165,7 @@
                 })
                 .catch((e) => {console.log(e)})
 
-                axios.get(`https://api.themoviedb.org/3/movie/${this.movieId}/recommendations?api_key=${API_KEY}&language=ko-KR&page=1`)
+                await axios.get(`https://api.themoviedb.org/3/movie/${this.movieId}/recommendations?api_key=${this.API_KEY}&language=ko-KR&page=1`)
                 .then((r)=>{
                     const recomData = r.data.results
                     this.recomMovies = recomData.map((m) => {
@@ -276,7 +276,7 @@
           player = new YT.Player('player', {
             height: '360',
             width: '640',
-            videoId: '{{movie_video}}',
+            videoId: '{{movie_video.key}}',
             events: {
             //   'onReady': onPlayerReady,
             //   'onStateChange': onPlayerStateChange

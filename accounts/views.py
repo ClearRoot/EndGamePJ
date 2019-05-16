@@ -86,10 +86,9 @@ def leaving_user(request, user_id):
         pwd = request.POST.get('pwd')
         if check_password(pwd, user.password) and user == request.user:
             user.delete()
-        return redirect('movies:list')
-    else:
-        pass
-    return render(request, 'accounts/password_form.html')
+            return redirect('movies:list')
+        return redirect('accounts:user_page', user_id)
+    return redirect('movies:list')
 
 @login_required
 def pickup(request, movie_id):

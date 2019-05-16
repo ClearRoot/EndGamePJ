@@ -1,0 +1,46 @@
+[
+{
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$120000$6sl9eSxRSuXh$vwW3I/mONUXzf92eZi65r+2pIOBFovk72w4msJR2Qxc=",
+        "last_login": null,
+        "is_superuser": true,
+        "username": "jtj0525",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2019-05-16T08:55:12.410Z",
+        "introduce": "",
+        "profile_image": "",
+        "groups": [],
+        "user_permissions": [],
+        "followings": [],
+        "pick_movie": []
+    }
+},
+{
+    "model": "accounts.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$120000$atVDfMbnsUmz$Pvim7pEOStSKm7dzYI3YJi3yY+HocGLtfITzgxIQVRk=",
+        "last_login": null,
+        "is_superuser": true,
+        "username": "clearroot",
+        "first_name": "",
+        "last_name": "",
+        "email": "jhk7767@gmail.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2019-05-16T08:57:05.456Z",
+        "introduce": "",
+        "profile_image": "",
+        "groups": [],
+        "user_permissions": [],
+        "followings": [],
+        "pick_movie": []
+    }
+}
+]
