@@ -107,7 +107,7 @@
                 <p>{{user_info.username}}</p>
                 {% if request.user != user_info %}
                     {% if user_info in user.followings.all %}
-                        <span data-id="{{user_info.id}}" class="ml-2 px-1 py-0 btn btn-light follow_btn" style="cursor:pointer">팔로잉</span>
+                        <span data-id="{{user_info.id}}" class="ml-2 px-1 py-0 btn btn-secondary follow_btn" style="cursor:pointer">팔로잉</span>
                     {% else %}
                         <span data-id="{{user_info.id}}" class="ml-2 px-1 py-0 btn btn-primary follow_btn" style="cursor:pointer">팔로우</span>
                     {% endif %}
@@ -140,14 +140,17 @@
         for(const followBtn of followBtnList){
             followBtn.addEventListener('click', e => {
                 const follow_id = e.target.dataset.id
+                console.log(e.target)
                 axios.get(`/accounts/follow/${follow_id}`)
                 .then(function(res){
                     if(res.data.is_follow){
                         e.target.classList.remove('btn-primary')
-                        e.target.classList.add('btn-light')
+                        e.target.classList.add('btn-secondary')
+                        e.target.innerText = "팔로잉"
                     }else{
-                        e.target.classList.remove('btn-light')
+                        e.target.classList.remove('btn-secondary')
                         e.target.classList.add('btn-primary')
+                        e.target.innerText = "팔로우"
                     }
                     document.getElementById(`followings_count_${follow_id}`).innerHTML = res.data.followings_count
                     document.getElementById(`follows_count_${follow_id}`).innerHTML = res.data.follows_count
