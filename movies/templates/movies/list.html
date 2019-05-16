@@ -32,25 +32,21 @@
 </style>
 
     <div id="app">
-        <li class="nav-item p-2">
-            <label for="genreSelect" class="text-white">장르 </label>
-            <select v-model="genreStatus" id="genreSelect">
-                <option value="all">전체보기</option>
-                <option v-for="genre in genres" v-bind:value="genre.pk">[[genre.fields.mtype]]</option>
-            </select>
-        </li>
-        <li class="nav-item p-2">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" v-model="search">
-        </li>
-        <li class="nav-item p-2">
-            <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input" id="customSwitch1" v-model="starMovie">
-                <label class="custom-control-label text-white" for="customSwitch1">평가한 영화 숨기기</label>
+        <div class="d-flex flex-row align-items-center justify-content-around mt-3" style="background-color: rgba(200, 200, 200, .6)">
+            <div class="pt-2 col-auto">
+                <label for="genreSelect" class="text-white">장르 </label>
+                <select v-model="genreStatus" id="genreSelect">
+                    <option value="all">전체보기</option>
+                    <option v-for="genre in genres" v-bind:value="genre.pk">[[genre.fields.mtype]]</option>
+                </select>
             </div>
-        </li>
+            <div class="col-auto py-2">
+                <input class="form-control h-75" type="search" placeholder="영화제목검색" aria-label="영화제목 검색" v-model="search">
+            </div>
+        </div>
         <div class="row movie-list">
-            <div class="card-wrapper mx-auto mt-5" v-for="(movie, index) in filteredList" v-if="genreStatus === 'all' || movie.fields.genre.includes(genreStatus)">
-                <div class="card bg-dark text-white" @mouseover="movie.togle = true" @mouseleave="movie.togle = false" v-if="!starMovie || movie.score === 0">
+            <div class="card-wrapper mx-auto mt-3" v-for="(movie, index) in filteredList" v-if="genreStatus === 'all' || movie.fields.genre.includes(genreStatus)">
+                <div class="card bg-dark text-white" @mouseover="movie.togle = true" @mouseleave="movie.togle = false">
                     <img v-bind:src="movie.fields.image" class="card-img" v-bind:alt="movie.fields.title" style="width: 13rem; height: 20rem; cursor: pointer;">
                     <div v-if="movie.togle" class="card-img-overlay text-center " style="background-color: rgba(10, 10, 10, .6)">
                         <h5 class="card-title mt-5">[[movie.fields.title]]</h5>

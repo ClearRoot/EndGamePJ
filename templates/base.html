@@ -23,9 +23,8 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
             <ul class="navbar-nav"> 
                 {% if user.is_authenticated %}
-                <li class="nav-item">
+                <li class="nav-item"></li>
                     <a href="{% url 'accounts:user_page' user.id %}" class="nav-link">MyPage</a>
-
                 </li>
                 <li class="nav-item">
                     <a href="{% url 'accounts:logout' %}" class="nav-link">Logout</a>
