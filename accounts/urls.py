@@ -12,5 +12,5 @@ urlpatterns = [
     path('edit_profile/<int:user_id>', views.edit_profile, name='edit_profile'),
     path('leaving_user/<int:user_id>', views.leaving_user, name='leaving_user'),
     path('pickup/<int:movie_id>', views.pickup, name='pickup'),
-    path('checking', views.password_enter_form, name='password_enter_form'),
+    # path('checking', views.password_enter_form, name='password_enter_form'),
 ]

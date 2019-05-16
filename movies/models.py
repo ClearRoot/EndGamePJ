@@ -27,12 +27,6 @@ class People(models.Model):
     director = models.CharField(max_length=50, blank=True)
     image = models.TextField(null=True)
     
-class MovieRank(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    date = models.CharField(max_length=8)
-    rank = models.IntegerField()
-    rank_inten = models.IntegerField()
-    
 class Comment(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -52,9 +46,17 @@ class Score(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     
 class MovieVideo(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, blank=True)
     key = models.TextField()
     name = models.TextField()
     site = models.TextField()
     size = models.TextField()
     vtype = models.TextField()
+    
+class RecommendMovie(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, blank=True, null=True)
+    code = models.IntegerField()
+    
+class SimilarMovie(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, blank=True, null=True)
+    code = models.IntegerField()
