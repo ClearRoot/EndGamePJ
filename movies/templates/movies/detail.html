@@ -148,7 +148,7 @@
                     const userScore = this.scores.filter(
                         (score) => {return score.fields.user === this.userId}
                     )
-                    if (userScore === true){
+                    if (userScore != false){
                         this.myScoreId = userScore[0].pk
                         this.myScoreValue = userScore[0].fields.value
                     }
