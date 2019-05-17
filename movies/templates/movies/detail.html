@@ -105,7 +105,7 @@
         <div class="row movie-list">
             <div class="card-wrapper mx-auto mt-3" v-for="(movie, index) in recomMovies">
                 <div class="card bg-dark text-white">
-                    <a v-bind:href="'https://www.google.com/search?q=영화+' + movie.title"><img v-bind:src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="card-img" v-bind:alt="movie.title" style="width: 13rem; height: 20rem;"></a>
+                    <a v-bind:href="'https://www.google.com/search?q=영화+' + movie.title" target="_blank"><img v-bind:src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" class="card-img" v-bind:alt="movie.title" style="width: 13rem; height: 20rem;"></a>
                 </div>
             </div>
         </div>
@@ -270,13 +270,12 @@
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
         var player;
         function onYouTubeIframeAPIReady() {
           player = new YT.Player('player', {
             height: '360',
             width: '640',
-            videoId: '{{movie_video.key}}',
+            videoId:'/{{movie_video.key}}',
             events: {
             //   'onReady': onPlayerReady,
             //   'onStateChange': onPlayerStateChange
@@ -298,6 +297,7 @@
         function stopVideo() {
           player.stopVideo();
         }
+        
     </script>
     {% endif %}
 
